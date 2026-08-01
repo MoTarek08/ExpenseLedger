@@ -1,0 +1,16 @@
+﻿namespace Application.ErrorNamespace.ErrorCodesNamespace
+{
+    public static class AuthErrorCodes
+    {
+        public const string AUTH_REFRESH_TOKEN_MISSING = "AUTH_REFRESH_TOKEN_MISSING";
+        public const string AUTH_INVALID_AUTHORIZATION_HEADER = "AUTH_INVALID_AUTHORIZATION_HEADER";
+        public const string AUTH_INVALID_CREDENTIALS = "AUTH_INVALID_CREDENTIALS";
+        public const string AUTH_EMAIL_ALREADY_EXISTS = "AUTH_EMAIL_ALREADY_EXISTS";
+        public const string AUTH_INVALID_ACCESS_TOKEN = "AUTH_INVALID_ACCESS_TOKEN";
+        public const string AUTH_REFRESH_TOKEN_DOES_NOT_EXIST = "AUTH_REFRESH_TOKEN_DOES_NOT_EXIST";
+        public const string AUTH_REFRESH_TOKEN_EXPIRED = "AUTH_REFRESH_TOKEN_EXPIRED";
+        public const string AUTH_REVOKED_REFRESH_TOKEN = "AUTH_REVOKED_REFRESH_TOKEN";
+        public const string AUTH_TOKENS_PAYLOAD_MISMATCH = "AUTH_TOKENS_PAYLOAD_MISMATCH";
+        public const string AUTH_REFRESH_TOKEN_ACTIVE_SESSION_ID_ALREADY_EXISTS = "AUTH_REFRESH_TOKEN_ACTIVE_SESSION_ID_ALREADY_EXISTS";
+    }
+}

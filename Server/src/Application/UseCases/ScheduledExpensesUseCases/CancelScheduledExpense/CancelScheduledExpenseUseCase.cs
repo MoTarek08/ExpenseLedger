@@ -1,0 +1,49 @@
+using Application.ErrorNamespace;
+using Application.ErrorNamespace.ErrorCodesNamespace;
+using Application.Interfaces.Repositories;
+using Application.Interfaces.UnitOfWork;
+using Application.Models.Result;
+using Microsoft.Extensions.Logging;
+
+namespace Application.UseCases.ScheduledExpensesUseCases.CancelScheduledExpense
+{
+    public class CancelScheduledExpenseUseCase
+    {
+        private readonly IScheduledExpensesRepository _scheduledExpensesRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<CancelScheduledExpenseUseCase> _logger;
+
+        public CancelScheduledExpenseUseCase(
+            IScheduledExpensesRepository scheduledExpensesRepository,
+            IUnitOfWork unitOfWork,
+            ILogger<CancelScheduledExpenseUseCase> logger)
+        {
+            _scheduledExpensesRepository = scheduledExpensesRepository;
+            _unitOfWork = unitOfWork;
+            _logger = logger;
+        }
+
+        public async Task<Result> Execute(
+            Guid scheduledExpenseId,
+            Guid userId,
+            CancellationToken cancellationToken)
+        {
+            var scheduledExpense = await _scheduledExpensesRepository.FindAsync(scheduledExpenseId, cancellationToken);
+
+            if (scheduledExpense is null || scheduledExpense.UserId != userId)
+            {
+                _logger.LogWarning("Scheduled expense not found {ScheduledExpenseId} {UserId}", scheduledExpenseId, userId);
+                return Result.Failure(new Error(ExpensesErrorCodes.SCHEDULED_EXPENSE_NOT_FOUND));
+            }
+
+            if (!scheduledExpense.IsActive && scheduledExpense.NextDueOn is null)
+                return Result.Success();
+
+            scheduledExpense.Cancel();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Scheduled expense cancelled {ScheduledExpenseId} {UserId}", scheduledExpenseId, userId);
+            return Result.Success();
+        }
+    }
+}
