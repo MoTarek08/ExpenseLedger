@@ -1,13 +1,83 @@
-# Note:
-- Branch "origin/main" is the production branch, it should have very minimal commits and should only have production-ready versions of the application
-- Branch "origin/dev" is the only development branch, this is the default branch that should have the different commits you do locally, it's a shared environment that should be shared between all developers
+# Git Workflow
 
+## Branches
 
-# The Flow:
-0- You should've cloned the repo already, and configured the dependencies, and you have a fully working clone of the repository locally
-1- When you're about to implement a new feature, create locally a new branch from the main branch you are working on locally
-2- After finishing the feature, merge the branch into the local main branch (and delete the branch if you want), rebase merge is preferred specially if you comitted a lot
-**IMPORTANT** -> 3- Merge the remote "origin/dev" into the local main branch, because there could be changes that happened after your last pull that would make conflict if you pushed directly,
-if any conflicts occured, they should be resolved gracefully first
-4- Push the local main branch (should be up to date with the "origin/dev" without conflicts, just the "origin/dev" is a few commits behind)
-5- Accept the request from the remote repo
+### `origin/main`
+
+The production branch.
+
+- Should contain only production-ready code.
+- Keep the commit history clean and minimal.
+- Never use it for day-to-day development.
+
+---
+
+### `origin/dev`
+
+The shared development branch.
+
+- The default branch for active development.
+- All developers push their completed work here.
+- Contains the ongoing development history before production releases.
+
+---
+
+# Development Flow
+
+## Prerequisites
+
+Before starting development:
+
+- The repository has already been cloned.
+- All project dependencies have been configured.
+- The project builds and runs successfully.
+
+---
+
+## 1. Create a Feature Branch
+
+When starting a new feature:
+
+- Create a new local branch from your current working branch.
+
+---
+
+## 2. Implement the Feature
+
+Complete the implementation.
+
+After finishing:
+
+- Merge the feature branch back into your local working branch.
+- Prefer a **rebase merge**, especially if the feature contains many commits.
+- Delete the feature branch if it is no longer needed.
+
+---
+
+## 3. Synchronize with `origin/dev` (**Important**)
+
+Before pushing:
+
+- Merge the latest changes from `origin/dev` into your local working branch.
+- Resolve any merge conflicts before continuing.
+
+This prevents pushing work that conflicts with changes made by other developers.
+
+---
+
+## 4. Push
+
+After resolving conflicts:
+
+- Push your local branch.
+
+At this point your local branch should contain:
+
+- Your completed feature.
+- All latest changes from `origin/dev`.
+
+---
+
+## 5. Complete the Merge
+
+Accept the merge request on the remote repository.
