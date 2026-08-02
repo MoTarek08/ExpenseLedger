@@ -1,5 +1,4 @@
 ﻿using Infrastructure.ObjectStorage;
-using Infrastructure.ObjectStorage.Clients;
 using Minio;
 using Minio.DataModel.Args;
 using Minio.DataModel.ILM;

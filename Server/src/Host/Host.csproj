@@ -10,14 +10,6 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <Content Remove="appsettings.development.example.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Include="appsettings.development.example.json" />
-	</ItemGroup>
 	
   <ItemGroup>
     <PackageReference Include="Asp.Versioning.Mvc" Version="10.0.0" />
