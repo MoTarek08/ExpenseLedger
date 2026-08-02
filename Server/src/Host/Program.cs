@@ -76,6 +76,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     app.UseDashboards();
+    await app.ApplyMigrations();
 }
 
 else
