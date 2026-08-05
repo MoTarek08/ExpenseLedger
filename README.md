@@ -17,19 +17,23 @@ Beyond implementing business features, the project focuses on building software 
   
   3- Configure your secrets
   
-  4- Copy the secrets from appsettings.development.json and paste them into the docker-compose.yml file
+  4- Copy the content of .env.example and paste it into .env (in the root directory)
+
+  5- Configure the secrets to be in sync with the appsettings.development.json
   
-  5- From the root of the working directory, execute:
+  6- From the root of the working directory, execute:
     docker compose up
   
-  6- Navigate the the Host project:
+  7- Navigate the the Host project:
     cd Server/src/Host
 
-  7- Run the application:
+  8- Run the application:
   dotnet run --launch-profile https
 
 
 # Note:
+  - appsettings.development.json: used for configuring secrets in the development environment.
+  - .env: contains the secrets required for running the sevices and spinning up containers correctly.
   - Https runs on: "https://localhost:7000"
   - Http runs on: "http://localhost:5216"
   - Swagger runs on: "https://localhost:7000/swagger/index.html"

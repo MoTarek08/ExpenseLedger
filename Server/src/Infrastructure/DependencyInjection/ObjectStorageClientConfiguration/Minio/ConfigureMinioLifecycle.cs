@@ -26,6 +26,14 @@ namespace Infrastructure.DependencyInjection.ObjectStorageClientConfiguration.Mi
 
             try
             {
+                var bucketExists = await minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(settings.BucketName));
+
+                if (!bucketExists)
+                {
+                    await minioClient.MakeBucketAsync(new MakeBucketArgs().WithBucket(settings.BucketName));
+                    Log.Information("Bucket {BucketName} created", settings.BucketName);
+                }
+
                 await minioClient.SetBucketLifecycleAsync(new SetBucketLifecycleArgs()
                         .WithBucket(settings.BucketName)
                         .WithLifecycleConfiguration(config));

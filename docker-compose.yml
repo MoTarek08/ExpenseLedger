@@ -5,9 +5,9 @@ services:
     container_name: expenseledger-db
     # These should be overriden by the actualy db initialization credentials, which should be identical to the env varaibles
     environment:
-      POSTGRES_DB: expense_ledger
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgresPassword12@
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
      # Map the host 5432 port to the container's 5432, That means that any request from the host maching for port 5432 will be mapped to the container's 5432
     ports:
       - "5432:5432"
@@ -19,9 +19,9 @@ services:
     image: postgres:18.1
     container_name: hangfire-db
     environment:
-      POSTGRES_DB: hangfire
-      POSTGRES_USER: hangfire
-      POSTGRES_PASSWORD: hangfire
+      - POSTGRES_DB=${HANGFIRE_POSTGRES_DB}
+      - POSTGRES_USER=${HANGFIRE_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${HANGFIRE_POSTGRES_PASSWORD}
     ports:
       - "5433:5432"
     volumes:
@@ -33,8 +33,8 @@ services:
     # The command for running the service inside the container
     command: [ "server", "--console-address", ":9001", "/data" ]
     environment:
-      - MINIO_ROOT_USER=minio
-      - MINIO_ROOT_PASSWORD=minioPassword12@
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     volumes:
       - minio_data:/data
     ports:

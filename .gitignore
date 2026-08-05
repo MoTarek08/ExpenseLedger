@@ -1,4 +1,4 @@
- Build results
+# Build results
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]eleases/
@@ -6,6 +6,10 @@
 [Oo]utput/
 [Ll]og/
 [Ll]ogs/
+
+
+# GitHub
+.github/
 
 # User-specific files
 *.user
@@ -61,11 +65,12 @@ ScaffoldingReadMe.txt
 .vs/
 
 # Environment Variables
+.env
 appsettings.development.json
 
-# Agents Specefecations
-/Server/.agents
-/Server/docs
-/Server/opencode.json
-/Server/nul
-/Server/host_run.log
+# Agents Specifications
+Server/.agents/
+Server/docs/
+Server/opencode.json
+Server/nul
+Server/host_run.log
