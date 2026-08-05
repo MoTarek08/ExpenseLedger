@@ -11,32 +11,27 @@ Beyond implementing business features, the project focuses on building software 
   - Install docker and open it
 
 # Executing program
-  1- Create appsettings.development.json file
-  
-  2- Copy the content of appsettings.development.example.json and paste it into appsettings.development.json
-  
-  3- Configure your secrets
-  
-  4- Copy the content of .env.example and paste it into .env (in the root directory)
+  1- Create a .env file (in the root directory)
 
-  5- Configure the secrets to be in sync with the appsettings.development.json
+  2- Copy the content of .env.example and paste it into .env
+
+  3- Configure the secrets
   
-  6- From the root of the working directory, execute:
-    docker compose up
+  4- From the root of the working directory, execute:
+    docker compose up -d
   
-  7- Navigate the the Host project:
+  5- Navigate the the Host project:
     cd Server/src/Host
 
-  8- Run the application:
+  6- Run the application:
   dotnet run --launch-profile https
 
 
 # Note:
-  - appsettings.development.json: used for configuring secrets in the development environment.
-  - .env: contains the secrets required for running the sevices and spinning up containers correctly.
   - Https runs on: "https://localhost:7000"
   - Http runs on: "http://localhost:5216"
   - Swagger runs on: "https://localhost:7000/swagger/index.html"
 
 # Help:
   - If you faced issues with spinning docker containers, try to remove all containers from you docker, or at least any related containers, like Postgres containers or Minio
+  - Always stop the containers with: docker compose down -v
