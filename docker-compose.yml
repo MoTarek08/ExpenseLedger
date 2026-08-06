@@ -22,6 +22,7 @@ services:
         condition: service_started
       minio:
         condition: service_started
+    restart: unless-stopped
     volumes:
       - app_logs:/app/Logs
   
@@ -37,6 +38,7 @@ services:
      # Map the host 5434 port to the container's 5432, That means that any request from the host maching for port 5434 will be mapped to the container's 5432
     ports:
       - "5434:5432"
+    restart: unless-stopped
      # Mounting the docker's volume to the container's files that persist data, since the data is disposed after closing the image, this volume will persist everything in docker's file system
     volumes:
       - app_db_data:/var/lib/postgresql
@@ -50,6 +52,7 @@ services:
       - POSTGRES_PASSWORD=${HANGFIRE_POSTGRES_PASSWORD}
     ports:
       - "5433:5432"
+    restart: unless-stopped
     volumes:
       - hangfire_db_data:/var/lib/postgresql
 
@@ -61,6 +64,7 @@ services:
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    restart: unless-stopped
     volumes:
       - minio_data:/data
     ports:
