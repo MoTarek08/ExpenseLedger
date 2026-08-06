@@ -18,7 +18,7 @@ Beyond implementing business features, the project focuses on building software 
   3- Configure the secrets
   
   4- From the root of the working directory, execute:
-    docker compose up -d
+    docker compose --profile full up -d
   
   5- Navigate the the Host project:
     cd Server/src/Host
@@ -34,4 +34,3 @@ Beyond implementing business features, the project focuses on building software 
 
 # Help:
   - If you faced issues with spinning docker containers, try to remove all containers from you docker, or at least any related containers, like Postgres containers or Minio
-  - Always stop the containers with: docker compose down -v

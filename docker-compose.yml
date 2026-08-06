@@ -1,0 +1,75 @@
+services:
+  api:
+    profiles: ["full"]
+    build:
+      context: Server/
+      dockerfile: Dockerfile
+    container_name: api
+    ports:
+      - "7000:8080"
+    environment:
+      - DbSettings__ConnectionString=Host=app-db; Port=5432; Database=${POSTGRES_DB}; Username=${POSTGRES_USER}; Password=${POSTGRES_PASSWORD}; Search Path=public; TrustServerCertificate=True
+      - HangfireDbSettings__ConnectionString=Host=hangfire-db; Port=5432; Database=${HANGFIRE_POSTGRES_DB}; Username=${HANGFIRE_POSTGRES_USER}; Password=${HANGFIRE_POSTGRES_PASSWORD}; Search Path=public; TrustServerCertificate=True
+      - ObjectStorageSettings__Endpoint=minio:9000
+      - ObjectStorageSettings__AccessKey=${MINIO_ROOT_USER}
+      - ObjectStorageSettings__SecretKey=${MINIO_ROOT_PASSWORD}
+      - AccessTokenSettings__SigningKey=${ACCESS_TOKEN_SIGNING_KEY}
+    depends_on:
+      app-db:
+        condition: service_started
+      hangfire-db:
+        condition: service_started
+      minio:
+        condition: service_started
+    volumes:
+      - app_logs:/app/Logs
+  
+  app-db:
+    # Pinned version for better stability, rahter than using postgres:latest, which could cause inconsistency between different dev environments
+    image: postgres:18.1
+    container_name: app-db
+    # These should be overriden by the actualy db initialization credentials, which should be identical to the env varaibles
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+     # Map the host 5434 port to the container's 5432, That means that any request from the host maching for port 5434 will be mapped to the container's 5432
+    ports:
+      - "5434:5432"
+     # Mounting the docker's volume to the container's files that persist data, since the data is disposed after closing the image, this volume will persist everything in docker's file system
+    volumes:
+      - app_db_data:/var/lib/postgresql
+
+  hangfire-db:
+    image: postgres:18.1
+    container_name: hangfire-db
+    environment:
+      - POSTGRES_DB=${HANGFIRE_POSTGRES_DB}
+      - POSTGRES_USER=${HANGFIRE_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${HANGFIRE_POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - hangfire_db_data:/var/lib/postgresql
+
+  minio:
+    image: "minio/minio:RELEASE.2025-04-22T22-12-26Z"
+    container_name: minio
+    # The command for running the service inside the container
+    command: [ "server", "--console-address", ":9001", "/data" ]
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    ports:
+    # The port for the service itself
+      - "80:9000"
+    # The port for the dashboard (runs independently from the Api)
+      - "9001:9001"
+
+volumes:
+  app_logs:
+  app_db_data:
+  hangfire_db_data:
+  minio_data:

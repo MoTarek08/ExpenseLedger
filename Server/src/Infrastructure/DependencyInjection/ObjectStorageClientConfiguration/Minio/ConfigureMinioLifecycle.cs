@@ -42,7 +42,7 @@ namespace Infrastructure.DependencyInjection.ObjectStorageClientConfiguration.Mi
             }
             catch (Exception ex)
             {
-                Log.Warning("Failed to configuer MinIO bucket lifecycle policy: {Message}", ex.Message);
+                Log.Warning("Failed to configure MinIO bucket lifecycle policy: {Message}", ex.Message);
                 // Non-fatal — app should still start
             }
         }

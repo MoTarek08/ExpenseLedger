@@ -40,7 +40,7 @@ namespace Infrastructure.ObjectStorage.Clients
             var args = new PresignedPutObjectArgs()
             .WithBucket(bucketName)
             .WithObject(objectKey)
-            .WithExpiry(expiryInMinuites);
+            .WithExpiry(expiryInMinuites*60);
 
             return await _minioClient.PresignedPutObjectAsync(args); ;
         }
