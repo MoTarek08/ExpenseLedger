@@ -19,18 +19,11 @@ Beyond implementing business features, the project focuses on building software 
   
   4- From the root of the working directory, execute:
     docker compose --profile full up -d
-  
-  5- Navigate the the Host project:
-    cd Server/src/Host
-
-  6- Run the application:
-  dotnet run --launch-profile https
 
 
 # Note:
-  - Https runs on: "https://localhost:7000"
-  - Http runs on: "http://localhost:5216"
-  - Swagger runs on: "https://localhost:7000/swagger/index.html"
+  - Http runs on: "http://localhost:7000"
+  - Swagger runs on: "http://localhost:7000/swagger/index.html"
 
 # Help:
   - If you faced issues with spinning docker containers, try to remove all containers from you docker, or at least any related containers, like Postgres containers or Minio

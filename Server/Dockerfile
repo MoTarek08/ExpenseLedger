@@ -11,19 +11,22 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY ExpenseLedgerSolution.slnx .
+COPY NuGet.config .
 
-COPY src/Domain/Domain.csproj Domain/
-COPY src/Application/Application.csproj Application/
-COPY src/Host/Host.csproj Host/
-COPY src/Infrastructure/Infrastructure.csproj Infrastructure/
+
+COPY src/Domain/Domain.csproj src/Domain/
+COPY src/Application/Application.csproj src/Application/
+COPY src/Host/Host.csproj src/Host/
+COPY src/Infrastructure/Infrastructure.csproj src/Infrastructure/
 COPY Tests/UnitTests/UnitTests.csproj /Tests/UnitTests/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
-    dotnet restore ExpenseLedgerSolution.slnx
 
-# Any other src file that is not .csproj (not related to dependencies)
+# .NET follows the project references and end up restoring every project except IntegrationTests.csproj
+RUN dotnet restore src/Host/Host.csproj && \
+    dotnet restore /Tests/UnitTests/UnitTests.csproj
+
+# Any other src file
 COPY . .
-
 
 RUN dotnet build \
     src/Host/Host.csproj \
