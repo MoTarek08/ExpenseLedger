@@ -18,7 +18,6 @@ namespace Application.UseCases.ExpensesUseCases.ConfirmImageUpload
         private readonly IExpensesFileObjectsRepository _expensesFileObjectsRepository;
         private readonly IUnitOfWork _unitOfWork;
         private IObjectStorageService _objectStorageService;
-        private readonly IBackgroundJobsService _backgroundJobsService;
         private readonly IDateProvider _dateTimeProvider;
         private readonly ILogger<ConfirmExpenseFileUploadUseCase> _logger;
 
@@ -27,7 +26,6 @@ namespace Application.UseCases.ExpensesUseCases.ConfirmImageUpload
             IExpensesFileObjectsRepository expensesFileObjectsRepository,
             IUnitOfWork unitOfWork,
             IObjectStorageService objectStorageService,
-            IBackgroundJobsService backgroundJobsService,
             IDateProvider dateTimeProvider,
             ILogger<ConfirmExpenseFileUploadUseCase> logger)
         {
@@ -35,7 +33,6 @@ namespace Application.UseCases.ExpensesUseCases.ConfirmImageUpload
             _expensesFileObjectsRepository = expensesFileObjectsRepository;
             _unitOfWork = unitOfWork;
             _objectStorageService = objectStorageService;
-            _backgroundJobsService = backgroundJobsService;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
@@ -43,11 +40,17 @@ namespace Application.UseCases.ExpensesUseCases.ConfirmImageUpload
         public async Task<Result> Execute(Guid uploadedFileId, Guid expenseId, Guid userId, CancellationToken cancellationToken)
         {
 
-            var expense = await _expensesRepository.FindAsync(expenseId, cancellationToken);
+            var expense = await _expensesRepository.FindIncludingFileObjectAsync(expenseId, cancellationToken);
             if (expense is null || expense.UserId != userId)
             {
                 _logger.LogWarning("Confirm failed: expense {ExpenseId} not found for user {UserId}", expenseId, userId);
                 return Result.Failure(new Error(ExpensesErrorCodes.EXPENSE_NOT_FOUND));
+            }
+
+            if(expense.FileObject is not null)
+            {
+                _logger.LogWarning("Confirm failed: expense {ExpenseId} Already has a file", expenseId);
+                return Result.Failure(new Error(ExpensesErrorCodes.EXPENSE_ALREADY_HAS_A_FILE));
             }
 
             var expenseFile = await _expensesFileObjectsRepository.FindAsync(uploadedFileId, cancellationToken);
@@ -62,6 +65,7 @@ namespace Application.UseCases.ExpensesUseCases.ConfirmImageUpload
                 _logger.LogWarning("Confirm failed: file {FileId} already linked to expense {ExpenseId}", uploadedFileId, expenseFile.ExpenseId);
                 return Result.Failure(new Error(ExpensesErrorCodes.EXPENSE_FILE_ALREADY_LINKED_TO_OTHER_EXPENSE));
             }
+
 
             if (expenseFile.Status is not FileObjectStatus.PendingUpload)
             {

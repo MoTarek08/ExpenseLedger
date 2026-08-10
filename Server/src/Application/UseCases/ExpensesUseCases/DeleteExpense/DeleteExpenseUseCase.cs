@@ -1,11 +1,11 @@
 using Application.ErrorNamespace;
 using Application.ErrorNamespace.ErrorCodesNamespace;
+using Application.Exceptions.ObjectStorageExceptions;
 using Application.Interfaces.DateTimeProvider;
-using Application.Interfaces.Repositories;
+using Application.Interfaces.ObjectStorage;
 using Application.Interfaces.RepositoriesNamespace;
 using Application.Interfaces.UnitOfWork;
 using Application.Models.Result;
-using Domain.Entities.ObjectStorageDeletionRequestNamespace;
 using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.ExpensesUseCases.DeleteExpense
@@ -13,22 +13,20 @@ namespace Application.UseCases.ExpensesUseCases.DeleteExpense
     public class DeleteExpenseUseCase
     {
         private readonly IExpensesRepository _expensesRepository;
-        private readonly IObjectStorageDeletionRequestsRepository _objectStorageDeletionRequestsRepository;
+        private readonly IObjectStorageService _objectStorageService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IDateProvider _dateTimeProvider;
         private readonly ILogger<DeleteExpenseUseCase> _logger;
 
         public DeleteExpenseUseCase(
             IExpensesRepository expensesRepository,
-            IObjectStorageDeletionRequestsRepository objectStorageDeletionRequestsRepository,
+            IObjectStorageService objectStorageService,
             IUnitOfWork unitOfWork,
             IDateProvider dateTimeProvider,
             ILogger<DeleteExpenseUseCase> logger)
         {
             _expensesRepository = expensesRepository;
-            _objectStorageDeletionRequestsRepository = objectStorageDeletionRequestsRepository;
+            _objectStorageService = objectStorageService;
             _unitOfWork = unitOfWork;
-            _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
 
@@ -49,13 +47,16 @@ namespace Application.UseCases.ExpensesUseCases.DeleteExpense
 
             if (expense.FileObject is not null)
             {
-                var now = _dateTimeProvider.Now;
-                var deletionRequest = ObjectStorageDeletionRequest.Create(
-                    expense.FileObject.ObjectKey,
-                    expense.FileObject.StorageProvider,
-                    now);
-
-                _objectStorageDeletionRequestsRepository.Add(deletionRequest);
+               try 
+                {
+                    await _objectStorageService.DeleteAsync(expense.FileObject.ObjectKey, cancellationToken);
+                }
+               catch(FileObjectAlreadyDeleted)
+                {
+                    _logger.LogInformation("File object {ExpenseFileObjectId} for expense {ExpenseId} already deleted ",
+                   expense.FileObject.Id,
+                   expense.Id);
+                }
             }
 
             _expensesRepository.Remove(expense);

@@ -77,6 +77,14 @@ namespace Host.ProblemDetails.Problems
                 ExpensesErrorCodes.EXPENSE_FILE_ALREADY_LINKED_TO_OTHER_EXPENSE,
                 409),
 
+            [ExpensesErrorCodes.EXPENSE_ALREADY_HAS_A_FILE] =
+            new(
+                "Expense already has a filed",
+                "This expense already has a file, an exepense can only have 1 file at a time",
+                ExpensesErrorCodes.EXPENSE_ALREADY_HAS_A_FILE,
+                409),
+
+
             [ExpensesErrorCodes.EXPENSE_INVALID_FILE_STATE] =
             new(
                 "Invalid file state",

@@ -286,7 +286,7 @@ namespace Host.Controllers.ExpensesControllerNamespace
         /// Deletes an expense for the authenticated user.
         /// </summary>
         /// <remarks>
-        /// If the expense has a linked file, a deletion request is queued for async cleanup of object storage.
+        /// If the expense has a linked file, the file is deleted from object storage and db immediately.
         /// A financial profile is required.
         /// </remarks>
         [HttpDelete("{id:guid}")]

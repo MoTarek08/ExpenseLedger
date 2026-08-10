@@ -1,6 +1,5 @@
 ﻿using Application.Interfaces.DateTimeProvider;
 using Application.Interfaces.Repositories;
-using Hangfire;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.BackgroundJobs.BackgroundJobs

@@ -29,8 +29,6 @@ namespace Domain.Entities.FileObjectNamespace
         public User User { get; private set; } = null!;
         public Expense? Expense { get; private set; } = null!;
 
-        //private readonly List<ExpenseImport> _expenseImports = [];
-        //public IReadOnlyList<ExpenseImport> ExpenseImports => _expenseImports.AsReadOnly();
 
         private ExpenseFileObject() { }
 

@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <Folder Include="DependencyInjection\ObjectStorageClientConfiguration\ClientsConfiguration\" />
+    <Folder Include="ObjectStorage\Exceptions\" />
   </ItemGroup>
 
 </Project>
