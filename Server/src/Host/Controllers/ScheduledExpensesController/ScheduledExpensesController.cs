@@ -1,5 +1,4 @@
 ﻿using Asp.Versioning;
-using Application.UseCases.ScheduledExpensesUseCases.CancelScheduledExpense;
 using Application.UseCases.ScheduledExpensesUseCases.CreateScheduledExpense;
 using Application.UseCases.ScheduledExpensesUseCases.CreateScheduledExpense.Models;
 using Application.UseCases.ScheduledExpensesUseCases.DeleteScheduledExpense;
@@ -31,7 +30,6 @@ namespace Host.Controllers.ScheduledExpensesController
     {
         private readonly CreateScheduledExpenseUseCase _createUseCase;
         private readonly UpdateScheduledExpenseUseCase _updateUseCase;
-        private readonly CancelScheduledExpenseUseCase _cancelUseCase;
         private readonly GetScheduledExpenseByIdUseCase _getByIdUseCase;
         private readonly DeleteScheduledExpenseUseCase _deleteUseCase;
         private readonly SearchScheduledExpensesUseCase _searchUseCase;
@@ -39,14 +37,12 @@ namespace Host.Controllers.ScheduledExpensesController
         public ScheduledExpensesController(
             CreateScheduledExpenseUseCase createUseCase,
             UpdateScheduledExpenseUseCase updateUseCase,
-            CancelScheduledExpenseUseCase cancelUseCase,
             GetScheduledExpenseByIdUseCase getByIdUseCase,
             DeleteScheduledExpenseUseCase deleteUseCase,
             SearchScheduledExpensesUseCase searchUseCase)
         {
             _createUseCase = createUseCase;
             _updateUseCase = updateUseCase;
-            _cancelUseCase = cancelUseCase;
             _getByIdUseCase = getByIdUseCase;
             _deleteUseCase = deleteUseCase;
             _searchUseCase = searchUseCase;
@@ -167,28 +163,6 @@ namespace Host.Controllers.ScheduledExpensesController
 
             var userId = this.GetUserIdFromClaims();
             var result = await _updateUseCase.Execute(id, userId, requestModel, cancellationToken);
-
-            if (result.IsFailure)
-                return this.FromProblem(AllProblems.Get(result.Error!.Code));
-
-            return NoContent();
-        }
-
-        ///<summary>
-        /// Cancel a scheduled expense
-        ///</summary>
-        ///<remarks>
-        /// Deactivates the scheduled expense and clears its next due date.
-        /// The operation is idempotent — cancelling an already-inactive expense returns success.
-        ///</remarks>
-        [HttpPatch("{id:guid}/cancel")]
-        [Authorize(Policy = PoliciesNamesConstants.HasFinancialProfile)]
-        [SwaggerResponse(204)]
-        [ProducesError(ExpensesErrorCodes.SCHEDULED_EXPENSE_NOT_FOUND)]
-        public async Task<ActionResult> Cancel(Guid id, CancellationToken cancellationToken)
-        {
-            var userId = this.GetUserIdFromClaims();
-            var result = await _cancelUseCase.Execute(id, userId, cancellationToken);
 
             if (result.IsFailure)
                 return this.FromProblem(AllProblems.Get(result.Error!.Code));

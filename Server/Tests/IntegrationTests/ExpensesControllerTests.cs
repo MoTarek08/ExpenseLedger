@@ -572,6 +572,103 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
     }
 
     [Fact]
+    public async Task Delete_ExpenseWithLinkedFile_ShouldDeleteObjectFromStorageImmediately()
+    {
+        var auth = await AuthenticationScenarioBuilder.Create(_fixture)
+            .WithRefreshToken()
+            .BuildAsync();
+        await FinancialProfileBuilder.Create(_fixture, auth.UserId).BuildAsync();
+        var categoryId = await GetAnyCategoryId();
+        var expenseId = await CreateExpenseInDb(auth.UserId, categoryId);
+
+        var now = DateTimeOffset.UtcNow;
+        var objectKey = $"integration-test/{auth.UserId}/{Guid.NewGuid()}.jpg";
+        using (var scope = _fixture.Factory.CreateScope())
+        {
+            var sp = scope.ServiceProvider;
+            var repo = sp.GetRequiredService<IExpensesFileObjectsRepository>();
+            var unitOfWork = sp.GetRequiredService<IUnitOfWork>();
+            var file = ExpenseFileObject.CreatePendingUpload(
+                auth.UserId,
+                objectKey,
+                StorageProvider.MinIO,
+                "image/jpeg",
+                1024,
+                now.AddHours(-1),
+                now.AddMinutes(15));
+            file.MarkAsUploaded(now);
+            file.LinkToExpense(expenseId);
+            repo.Add(file);
+            await unitOfWork.SaveChangesAsync();
+        }
+
+        A.CallTo(() => _fixture.Factory.FakeObjectStorageClient
+            .RemoveObjectAsync(A<string>._, objectKey, A<CancellationToken>._))
+            .Returns(Task.CompletedTask);
+
+        var request = new HttpRequestMessage(HttpMethod.Delete,
+            $"/api/v1/Expenses/{expenseId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+        var response = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        A.CallTo(() => _fixture.Factory.FakeObjectStorageClient
+            .RemoveObjectAsync(A<string>._, objectKey, A<CancellationToken>._))
+            .MustHaveHappenedOnceExactly();
+
+        await DatabaseAssertions.Verify(_fixture, async db =>
+        {
+            var expense = await db.Expenses.FindAsync(expenseId);
+            Assert.Null(expense);
+        });
+    }
+
+    [Fact]
+    public async Task Confirm_ExpenseAlreadyHasFile_ShouldReturnConflict()
+    {
+        var auth = await AuthenticationScenarioBuilder.Create(_fixture)
+            .WithRefreshToken()
+            .BuildAsync();
+        await FinancialProfileBuilder.Create(_fixture, auth.UserId).BuildAsync();
+        var categoryId = await GetAnyCategoryId();
+        var expenseId = await CreateExpenseInDb(auth.UserId, categoryId);
+
+        var now = DateTimeOffset.UtcNow;
+        using (var scope = _fixture.Factory.CreateScope())
+        {
+            var sp = scope.ServiceProvider;
+            var repo = sp.GetRequiredService<IExpensesFileObjectsRepository>();
+            var unitOfWork = sp.GetRequiredService<IUnitOfWork>();
+            var linkedFile = ExpenseFileObject.CreatePendingUpload(
+                auth.UserId,
+                $"integration-test/{auth.UserId}/{Guid.NewGuid()}.jpg",
+                StorageProvider.MinIO,
+                "image/jpeg",
+                1024,
+                now.AddHours(-1),
+                now.AddMinutes(15));
+            linkedFile.MarkAsUploaded(now);
+            linkedFile.LinkToExpense(expenseId);
+            repo.Add(linkedFile);
+            await unitOfWork.SaveChangesAsync();
+        }
+
+        var fileObjectId = await CreatePendingFileObjectInDb(auth.UserId);
+
+        var requestModel = new ConfirmExpenseFileUploadRequestModel(fileObjectId, expenseId);
+        var request = new HttpRequestMessage(HttpMethod.Post,
+            "/api/v1/Expenses/upload/confirm")
+        {
+            Content = JsonHelper.Serialize(requestModel)
+        };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var response = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Upload_Success_ShouldReturnPresignedUrl()
     {
         var auth = await AuthenticationScenarioBuilder.Create(_fixture)

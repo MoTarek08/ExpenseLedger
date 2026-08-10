@@ -65,4 +65,30 @@ public class ScheduledExpenseBuilder
         await unitOfWork.SaveChangesAsync();
         return entry.Id;
     }
+
+    /// Builds a once-cadence scheduled expense that has already been processed, so it is inactive.
+    public async Task<Guid> BuildInactiveAsync()
+    {
+        using var scope = _fixture.Factory.CreateScope();
+        var sp = scope.ServiceProvider;
+        var repo = sp.GetRequiredService<IScheduledExpensesRepository>();
+        var unitOfWork = sp.GetRequiredService<IUnitOfWork>();
+
+        if (_categoryId == Guid.Empty)
+        {
+            var db = sp.GetRequiredService<AppDbContext>();
+            var category = await db.ExpenseCategories.FirstAsync();
+            _categoryId = category.Id;
+        }
+
+        var pastDue = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1));
+        var entry = ScheduledExpense.Create(
+            _userId, _title, _amount, _categoryId, _subCategoryId, CadenceInterval.Once, pastDue, DateTimeOffset.UtcNow);
+
+        entry.MarkAsProcessed(pastDue);
+
+        repo.Add(entry);
+        await unitOfWork.SaveChangesAsync();
+        return entry.Id;
+    }
 }

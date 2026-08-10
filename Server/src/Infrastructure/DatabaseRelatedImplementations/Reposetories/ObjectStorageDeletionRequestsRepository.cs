@@ -1,3 +1,7 @@
+// COMMENTED OUT: Object storage deletion requests are no longer used.
+// Deletion of file objects is now performed immediately when the owning entity is deleted.
+// Keep this code for potential future use.
+/*
 using Application.Interfaces.Repositories;
 using Domain.Entities.ObjectStorageDeletionRequestNamespace;
 using Infrastructure.Database.AppDbContextNamespace;
@@ -40,3 +44,4 @@ namespace Infrastructure.DatabaseRelatedImplementations.Reposetories
 
     }
 }
+*/

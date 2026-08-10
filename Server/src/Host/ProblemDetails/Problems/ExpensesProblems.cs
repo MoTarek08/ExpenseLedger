@@ -79,8 +79,8 @@ namespace Host.ProblemDetails.Problems
 
             [ExpensesErrorCodes.EXPENSE_ALREADY_HAS_A_FILE] =
             new(
-                "Expense already has a filed",
-                "This expense already has a file, an exepense can only have 1 file at a time",
+                "Expense already has a file",
+                "This expense already has a file, an expense can only have 1 file at a time",
                 ExpensesErrorCodes.EXPENSE_ALREADY_HAS_A_FILE,
                 409),
 

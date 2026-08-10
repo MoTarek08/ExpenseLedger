@@ -23,7 +23,6 @@ using Application.UseCases.NotificationsUseCases.GetNotificationById;
 using Application.UseCases.NotificationsUseCases.MarkNotificationAsRead;
 using Application.UseCases.NotificationsUseCases.RestoreNotification;
 using Application.UseCases.NotificationsUseCases.SearchNotifications;
-using Application.UseCases.ScheduledExpensesUseCases.CancelScheduledExpense;
 using Application.UseCases.ScheduledExpensesUseCases.CreateScheduledExpense;
 using Application.UseCases.ScheduledExpensesUseCases.DeleteScheduledExpense;
 using Application.UseCases.ScheduledExpensesUseCases.GetScheduledExpenseById;
@@ -94,7 +93,6 @@ namespace Host.SetupExtensions
 
             services.AddScoped<CreateScheduledExpenseUseCase>();
             services.AddScoped<UpdateScheduledExpenseUseCase>();
-            services.AddScoped<CancelScheduledExpenseUseCase>();
             services.AddScoped<DeleteScheduledExpenseUseCase>();
             services.AddScoped<SearchScheduledExpensesUseCase>();
             services.AddScoped<GetScheduledExpenseByIdUseCase>();

@@ -1,3 +1,8 @@
+// COMMENTED OUT: Object storage deletion requests are no longer used.
+// Deletion of file objects is now performed immediately when the owning entity is deleted
+// (see DeleteExpenseUseCase). This cron job existed to consume persisted deletion requests
+// asynchronously. Keep this code for potential future use.
+/*
 using Application.Exceptions.ObjectStorageExceptions;
 using Application.Interfaces.DateTimeProvider;
 using Application.Interfaces.ObjectStorage;
@@ -63,3 +68,4 @@ namespace Infrastructure.BackgroundJobs.BackgroundJobs
         }
     }
 }
+*/

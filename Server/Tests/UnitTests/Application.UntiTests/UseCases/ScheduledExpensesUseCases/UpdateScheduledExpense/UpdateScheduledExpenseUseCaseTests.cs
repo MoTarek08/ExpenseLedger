@@ -69,7 +69,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Upd
         public async Task Execute_WhenInactive_ShouldReturnFailure()
         {
             var expense = CreateActiveExpense(UserId);
-            expense.Cancel();
+            typeof(ScheduledExpense).GetProperty("IsActive")!.SetValue(expense, false);
             A.CallTo(() => _repository.FindAsync(ScheduledExpenseId, A<CancellationToken>._))
                 .Returns(expense);
 

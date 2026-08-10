@@ -15,7 +15,8 @@
 
         public const string UniqueNotificationUserIdDeduplicationKey = "UQ_notifications_user_id_deduplication_key";
 
-        public const string UniqueObjectStorageDeletionsRequestsObjectKey = "UQ_object_storage_deletion_requests_object_key";
+        // COMMENTED OUT: object storage deletion requests are no longer used
+        //public const string UniqueObjectStorageDeletionsRequestsObjectKey = "UQ_object_storage_deletion_requests_object_key";
 
         public const string CkSpendingGoalsBounds = "CK_spending_goals_bounds";
     }

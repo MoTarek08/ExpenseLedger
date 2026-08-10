@@ -23,7 +23,8 @@ namespace Infrastructure.DependencyInjection.DatabaseRelatedImplementations
             services.AddScoped<ISpendingGoalsRepository, SpendingGoalsRepository>();
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<IExpensesFileObjectsRepository, ExpensesFileObjectsRepository>();
-            services.AddScoped<IObjectStorageDeletionRequestsRepository, ObjectStorageDeletionRequestsRepository>();
+            // COMMENTED OUT: object storage deletion requests are no longer used
+            //services.AddScoped<IObjectStorageDeletionRequestsRepository, ObjectStorageDeletionRequestsRepository>();
             services.AddScoped<IBudgetQueries, BudgetQueries>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             return services;

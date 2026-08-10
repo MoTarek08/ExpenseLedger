@@ -297,71 +297,6 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
     }
 
     [Fact]
-    public async Task Cancel_Success_ShouldReturn204()
-    {
-        var auth = await AuthenticationScenarioBuilder.Create(_fixture)
-            .WithRefreshToken()
-            .BuildAsync();
-        await FinancialProfileBuilder.Create(_fixture, auth.UserId).BuildAsync();
-        var seId = await ScheduledExpenseBuilder.Create(_fixture, auth.UserId).BuildAsync();
-
-        var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/v1/ScheduledExpenses/{seId}/cancel");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
-
-        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-
-        using var scope = _fixture.Factory.CreateScope();
-        var repo = scope.ServiceProvider.GetRequiredService<IScheduledExpensesRepository>();
-        var se = await repo.FindAsync(seId, CancellationToken.None);
-        Assert.NotNull(se);
-        Assert.False(se.IsActive);
-        Assert.Null(se.NextDueOn);
-    }
-
-    [Fact]
-    public async Task Cancel_WrongOwner_ShouldReturn404()
-    {
-        var owner = await AuthenticationScenarioBuilder.Create(_fixture)
-            .WithRefreshToken()
-            .BuildAsync();
-        await FinancialProfileBuilder.Create(_fixture, owner.UserId).BuildAsync();
-        var seId = await ScheduledExpenseBuilder.Create(_fixture, owner.UserId).BuildAsync();
-
-        var other = await AuthenticationScenarioBuilder.Create(_fixture)
-            .WithRefreshToken()
-            .BuildAsync();
-        await FinancialProfileBuilder.Create(_fixture, other.UserId).BuildAsync();
-
-        var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/v1/ScheduledExpenses/{seId}/cancel");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
-
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task Cancel_NoFinancialProfile_ShouldReturn403()
-    {
-        var auth = await AuthenticationScenarioBuilder.Create(_fixture)
-            .WithRefreshToken()
-            .BuildAsync();
-
-        var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/v1/ScheduledExpenses/{Guid.NewGuid()}/cancel");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
-
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task Cancel_Unauthenticated_ShouldReturn401()
-    {
-        var response = await _client.PatchAsync($"/api/v1/ScheduledExpenses/{Guid.NewGuid()}/cancel", null);
-        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-    }
-
-    [Fact]
     public async Task Delete_Success_ShouldReturn204()
     {
         var auth = await AuthenticationScenarioBuilder.Create(_fixture)
@@ -498,11 +433,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
             .BuildAsync();
         await FinancialProfileBuilder.Create(_fixture, auth.UserId).BuildAsync();
         var activeId = await ScheduledExpenseBuilder.Create(_fixture, auth.UserId).BuildAsync();
-        var cancelledId = await ScheduledExpenseBuilder.Create(_fixture, auth.UserId).BuildAsync();
-
-        var cancelRequest = new HttpRequestMessage(HttpMethod.Patch, $"/api/v1/ScheduledExpenses/{cancelledId}/cancel");
-        cancelRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        await _client.SendAsync(cancelRequest);
+        var cancelledId = await ScheduledExpenseBuilder.Create(_fixture, auth.UserId).BuildInactiveAsync();
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/ScheduledExpenses/search?ActiveOnly=true");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);

@@ -77,7 +77,7 @@ namespace UnitTests.Infrastructure.UnitTests.BackgroundJobs
         public async Task Execute_ScheduledExpenseIsNotActive_ReturnsEarly()
         {
             var scheduledExpense = CreateActiveScheduledExpense();
-            scheduledExpense.Cancel();
+            typeof(ScheduledExpense).GetProperty("IsActive")!.SetValue(scheduledExpense, false);
 
             A.CallTo(() => _scheduledExpensesRepository.FindAsync(_scheduledExpenseId, A<CancellationToken>._))
                 .Returns(scheduledExpense);

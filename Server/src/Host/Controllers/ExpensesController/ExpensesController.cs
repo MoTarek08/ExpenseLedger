@@ -253,6 +253,7 @@ namespace Host.Controllers.ExpensesControllerNamespace
         /// <remarks>
         /// The file must have been uploaded to the presigned URL obtained from the upload endpoint.
         /// The file must be in PendingUpload state and not already linked to another expense.
+        /// The expense must not already have a linked file, an expense can only have one file at a time.
         /// A financial profile is required.
         /// </remarks>
         [HttpPost("upload/confirm")]
@@ -260,6 +261,7 @@ namespace Host.Controllers.ExpensesControllerNamespace
         [SwaggerRequestExample(typeof(ConfirmExpenseFileUploadRequestModel), typeof(ConfirmExpenseFileUploadRequestModelExample))]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         [ProducesError(ExpensesErrorCodes.EXPENSE_NOT_FOUND)]
+        [ProducesError(ExpensesErrorCodes.EXPENSE_ALREADY_HAS_A_FILE)]
         [ProducesError(ExpensesErrorCodes.EXPENSE_FILE_NOT_FOUND)]
         [ProducesError(ExpensesErrorCodes.EXPENSE_FILE_ALREADY_LINKED_TO_OTHER_EXPENSE)]
         [ProducesError(ExpensesErrorCodes.EXPENSE_INVALID_FILE_STATE)]

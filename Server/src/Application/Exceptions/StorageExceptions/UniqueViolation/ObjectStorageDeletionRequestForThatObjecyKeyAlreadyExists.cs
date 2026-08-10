@@ -1,4 +1,8 @@
-﻿using Application.ErrorNamespace.ErrorCodesNamespace;
+﻿// COMMENTED OUT: Object storage deletion requests are no longer used.
+// Deletion of file objects is now performed immediately when the owning entity is deleted.
+// Keep this code for potential future use.
+/*
+using Application.ErrorNamespace.ErrorCodesNamespace;
 using Application.Exceptions.StorageExceptions.UniqueViolationNamespace;
 
 namespace Application.Exceptions.StorageExceptions.UniqueViolation
@@ -10,3 +14,4 @@ namespace Application.Exceptions.StorageExceptions.UniqueViolation
 
     }
 }
+*/

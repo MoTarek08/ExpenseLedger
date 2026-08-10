@@ -1,6 +1,5 @@
 using Application.ErrorNamespace;
 using Application.ErrorNamespace.ErrorCodesNamespace;
-using Application.Interfaces.BackgroundJobs;
 using Application.Interfaces.DateTimeProvider;
 using Application.Interfaces.ObjectStorage;
 using Application.Interfaces.ObjectStorage.Models;
@@ -22,7 +21,6 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.ConfirmExpen
         private readonly IExpensesFileObjectsRepository _expensesFileObjectsRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IObjectStorageService _objectStorageService;
-        private readonly IBackgroundJobsService _backgroundJobsService;
         private readonly IDateProvider _dateTimeProvider;
         private readonly ILogger<ConfirmExpenseFileUploadUseCase> _logger;
         private readonly ConfirmExpenseFileUploadUseCase _sut;
@@ -37,7 +35,6 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.ConfirmExpen
             _expensesFileObjectsRepository = A.Fake<IExpensesFileObjectsRepository>();
             _unitOfWork = A.Fake<IUnitOfWork>();
             _objectStorageService = A.Fake<IObjectStorageService>();
-            _backgroundJobsService = A.Fake<IBackgroundJobsService>();
             _dateTimeProvider = A.Fake<IDateProvider>();
             _logger = A.Fake<ILogger<ConfirmExpenseFileUploadUseCase>>();
             _sut = new ConfirmExpenseFileUploadUseCase(
@@ -45,7 +42,6 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.ConfirmExpen
                 _expensesFileObjectsRepository,
                 _unitOfWork,
                 _objectStorageService,
-                _backgroundJobsService,
                 _dateTimeProvider,
                 _logger);
         }
@@ -59,10 +55,26 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.ConfirmExpen
                 new DateOnly(2026, 7, 22),
                 DateTimeOffset.UtcNow);
 
+        private static ExpenseFileObject CreatePendingFile() =>
+            ExpenseFileObject.CreatePendingUpload(
+                UserId,
+                "test-key",
+                StorageProvider.MinIO,
+                "image/jpeg",
+                1024,
+                DateTimeOffset.UtcNow,
+                DateTimeOffset.UtcNow.AddMinutes(5),
+                "receipt.jpg");
+
+        private static void AttachFileToExpense(Expense expense, ExpenseFileObject file)
+        {
+            typeof(Expense).GetProperty(nameof(Expense.FileObject))!.SetValue(expense, file);
+        }
+
         [Fact]
         public async Task Execute_WhenExpenseNotFound_ShouldReturnExpenseNotFound()
         {
-            A.CallTo(() => _expensesRepository.FindAsync(ExpenseId, A<CancellationToken>._))
+            A.CallTo(() => _expensesRepository.FindIncludingFileObjectAsync(ExpenseId, A<CancellationToken>._))
                 .Returns((Expense?)null);
 
             var result = await _sut.Execute(FileId, ExpenseId, UserId, CancellationToken.None);
@@ -83,7 +95,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.ConfirmExpen
                 new DateOnly(2026, 7, 22),
                 DateTimeOffset.UtcNow);
 
-            A.CallTo(() => _expensesRepository.FindAsync(ExpenseId, A<CancellationToken>._))
+            A.CallTo(() => _expensesRepository.FindIncludingFileObjectAsync(ExpenseId, A<CancellationToken>._))
                 .Returns(expense);
 
             var result = await _sut.Execute(FileId, ExpenseId, UserId, CancellationToken.None);
@@ -93,11 +105,27 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.ConfirmExpen
         }
 
         [Fact]
+        public async Task Execute_WhenExpenseAlreadyHasFile_ShouldReturnExpenseAlreadyHasFile()
+        {
+            var expense = CreateTestExpense();
+            AttachFileToExpense(expense, CreatePendingFile());
+
+            A.CallTo(() => _expensesRepository.FindIncludingFileObjectAsync(ExpenseId, A<CancellationToken>._))
+                .Returns(expense);
+
+            var result = await _sut.Execute(FileId, ExpenseId, UserId, CancellationToken.None);
+
+            Assert.True(result.IsFailure);
+            Assert.Equal(ExpensesErrorCodes.EXPENSE_ALREADY_HAS_A_FILE, result.Error!.Code);
+            A.CallTo(() => _expensesFileObjectsRepository.FindAsync(A<Guid>._, A<CancellationToken>._)).MustNotHaveHappened();
+        }
+
+        [Fact]
         public async Task Execute_WhenFileNotFound_ShouldReturnFileNotFound()
         {
             var expense = CreateTestExpense();
 
-            A.CallTo(() => _expensesRepository.FindAsync(ExpenseId, A<CancellationToken>._))
+            A.CallTo(() => _expensesRepository.FindIncludingFileObjectAsync(ExpenseId, A<CancellationToken>._))
                 .Returns(expense);
             A.CallTo(() => _expensesFileObjectsRepository.FindAsync(FileId, A<CancellationToken>._))
                 .Returns((ExpenseFileObject?)null);
@@ -123,7 +151,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.ConfirmExpen
                 DateTimeOffset.UtcNow.AddMinutes(5),
                 "receipt.jpg");
 
-            A.CallTo(() => _expensesRepository.FindAsync(ExpenseId, A<CancellationToken>._))
+            A.CallTo(() => _expensesRepository.FindIncludingFileObjectAsync(ExpenseId, A<CancellationToken>._))
                 .Returns(expense);
             A.CallTo(() => _expensesFileObjectsRepository.FindAsync(FileId, A<CancellationToken>._))
                 .Returns(fileObject);
@@ -138,17 +166,9 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.ConfirmExpen
         public async Task Execute_WhenFileNotUploadedToStorage_ShouldReturnNotUploadedYet()
         {
             var expense = CreateTestExpense();
-            var fileObject = ExpenseFileObject.CreatePendingUpload(
-                UserId,
-                "test-key",
-                StorageProvider.MinIO,
-                "image/jpeg",
-                1024,
-                DateTimeOffset.UtcNow,
-                DateTimeOffset.UtcNow.AddMinutes(5),
-                "receipt.jpg");
+            var fileObject = CreatePendingFile();
 
-            A.CallTo(() => _expensesRepository.FindAsync(ExpenseId, A<CancellationToken>._))
+            A.CallTo(() => _expensesRepository.FindIncludingFileObjectAsync(ExpenseId, A<CancellationToken>._))
                 .Returns(expense);
             A.CallTo(() => _expensesFileObjectsRepository.FindAsync(FileId, A<CancellationToken>._))
                 .Returns(fileObject);
@@ -176,7 +196,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.ConfirmExpen
                 now.AddHours(1),
                 "receipt.jpg");
 
-            A.CallTo(() => _expensesRepository.FindAsync(ExpenseId, A<CancellationToken>._))
+            A.CallTo(() => _expensesRepository.FindIncludingFileObjectAsync(ExpenseId, A<CancellationToken>._))
                 .Returns(expense);
             A.CallTo(() => _expensesFileObjectsRepository.FindAsync(FileId, A<CancellationToken>._))
                 .Returns(fileObject);

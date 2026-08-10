@@ -39,7 +39,6 @@ namespace Infrastructure.Scheduling.BackgroundJobs
 
             if (scheduledExpense.NextDueOn != expectedDueDate)
                 return;
-     
 
                 var buildingExpenseResult = await _buildExpense.BuildExpense(
                 scheduledExpense.UserId,

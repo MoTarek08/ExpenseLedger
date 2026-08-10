@@ -149,7 +149,7 @@ namespace Domain.Entities.ScheduledExpenseNamespace
 
             Cadence = cadence;
 
-            if (cadence == CadenceInterval.Once)
+            if (Cadence == CadenceInterval.Once)
                 return this;
 
             if (LastProcessedAt is not null)
@@ -158,7 +158,7 @@ namespace Domain.Entities.ScheduledExpenseNamespace
                 return this;
             }
 
-            NextDueOn = CalculateNextDueOn(NextDueOn.Value);
+            NextDueOn = CalculateNextDueOn(NextDueOn.Value);// FirstDue == NextDueOn here
             return this;
         }
 
@@ -181,12 +181,6 @@ namespace Domain.Entities.ScheduledExpenseNamespace
             }
 
             NextDueOn = CalculateNextDueOn(NextDueOn ?? FirstDueOn);
-        }
-
-        public void Cancel()
-        {
-            IsActive = false;
-            NextDueOn = null;
         }
 
         public ScheduledExpense ChangeFirstDue(DateOnly newFirstDueDate)

@@ -53,7 +53,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Sea
                 ScheduledExpense.Create(UserId, "Active", 100m, CategoryId, null, CadenceInterval.Monthly, new DateOnly(2026, 7, 1), DateTimeOffset.UtcNow),
                 ScheduledExpense.Create(UserId, "Inactive", 100m, CategoryId, null, CadenceInterval.Once, new DateOnly(2026, 6, 1), DateTimeOffset.UtcNow)
             };
-            allExpenses[1].Cancel();
+            allExpenses[1].MarkAsProcessed(new DateOnly(2026, 6, 1));
 
             A.CallTo(() => _repository.GetAllForUserQuery(UserId))
                 .Returns(allExpenses.AsQueryable());

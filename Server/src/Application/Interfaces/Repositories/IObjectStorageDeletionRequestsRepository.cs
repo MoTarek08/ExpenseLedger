@@ -1,3 +1,7 @@
+// COMMENTED OUT: Object storage deletion requests are no longer used.
+// Deletion of file objects is now performed immediately when the owning entity is deleted.
+// Keep this code for potential future use.
+/*
 using Domain.Entities.ObjectStorageDeletionRequestNamespace;
 
 namespace Application.Interfaces.Repositories
@@ -12,3 +16,4 @@ namespace Application.Interfaces.Repositories
         Task<List<ObjectStorageDeletionRequest>> FindPendingAsync(Guid lastSeenId, int batchSize = 50);
     }
 }
+*/

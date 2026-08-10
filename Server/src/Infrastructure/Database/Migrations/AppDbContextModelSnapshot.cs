@@ -367,6 +367,8 @@ namespace Infrastructure.Migrations
                     b.ToTable("notifications", (string)null);
                 });
 
+            // COMMENTED OUT: ObjectStorageDeletionRequest is no longer used
+            /*
             modelBuilder.Entity("Domain.Entities.ObjectStorageDeletionRequestNamespace.ObjectStorageDeletionRequest", b =>
                 {
                     b.Property<Guid>("Id")
@@ -402,6 +404,7 @@ namespace Infrastructure.Migrations
 
                     b.ToTable("object_storage_deletion_requests", (string)null);
                 });
+            */
 
             modelBuilder.Entity("Domain.Entities.RefreshTokenNamespace.RefreshToken", b =>
                 {

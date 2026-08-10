@@ -4,7 +4,6 @@ using Domain.Entities.ExpenseSubCategoryNamespace;
 using Domain.Entities.FileObjectNamespace;
 using Domain.Entities.NoteNamespace;
 using Domain.Entities.Notification;
-using Domain.Entities.ObjectStorageDeletionRequestNamespace;
 using Domain.Entities.RefreshTokenNamespace;
 using Domain.Entities.ScheduledExpenseNamespace;
 using Domain.Entities.SpendingGoalNamespace;
@@ -49,7 +48,8 @@ namespace Infrastructure.Database.AppDbContextNamespace
 
         public DbSet<Notification> Notifications => Set<Notification>();
 
-        public DbSet<ObjectStorageDeletionRequest> ObjectStorageDeletionRequests => Set<ObjectStorageDeletionRequest>();
+        // COMMENTED OUT: object storage deletion requests are no longer used
+        //public DbSet<ObjectStorageDeletionRequest> ObjectStorageDeletionRequests => Set<ObjectStorageDeletionRequest>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

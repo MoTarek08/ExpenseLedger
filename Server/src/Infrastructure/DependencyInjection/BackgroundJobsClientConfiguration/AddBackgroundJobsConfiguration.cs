@@ -19,7 +19,8 @@ namespace Infrastructure.DependencyInjection.BackgroundJobsClientConfiguration
             services.AddScoped<CheckBudgetAfterExpenseCreationJob>();
             services.AddScoped<CheckCategoryPreferenceViolation>();
             services.AddScoped<CreateScheduledExpenseGeneratedNotification>();
-            services.AddScoped<ObjectStorageDeletionCleanupJob>();
+            // COMMENTED OUT: object storage deletion requests are no longer used
+            //services.AddScoped<ObjectStorageDeletionCleanupJob>();
             return services;
         }
 
@@ -29,7 +30,8 @@ namespace Infrastructure.DependencyInjection.BackgroundJobsClientConfiguration
             var backgroundJobsService = scope.ServiceProvider
                 .GetRequiredService<IBackgroundJobsService>();
             backgroundJobsService.AddOrUpdateCleanUpStaleExpenseFileObjectsWorker();
-            backgroundJobsService.AddOrUpdateObjectStorageDeletionCleanupWorker();
+            // COMMENTED OUT: object storage deletion requests are no longer used
+            //backgroundJobsService.AddOrUpdateObjectStorageDeletionCleanupWorker();
             return app;
         }
     }

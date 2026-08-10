@@ -27,13 +27,14 @@ namespace Infrastructure.BackgroundJobs
                 Cron.Hourly());
         }
 
-        public void AddOrUpdateObjectStorageDeletionCleanupWorker()
-        {
-            _recurringJobManager.AddOrUpdate<ObjectStorageDeletionCleanupJob>(
-                "execute-object-storage-deletion-requests",
-                job => job.Execute(),
-                Cron.Daily());
-        }
+        // COMMENTED OUT: object storage deletion requests are no longer used
+        //public void AddOrUpdateObjectStorageDeletionCleanupWorker()
+        //{
+        //    _recurringJobManager.AddOrUpdate<ObjectStorageDeletionCleanupJob>(
+        //        "execute-object-storage-deletion-requests",
+        //        job => job.Execute(),
+        //        Cron.Daily());
+        //}
 
         public void ScheduleGenerateExpenseFromScheduledExpenseOnNextDueDateWorker(Guid schduledExpenseId, DateOnly expectedDueDate)
         {

@@ -29,8 +29,9 @@ namespace Infrastructure.Database.DatabaseExceptionHandlersNamespace.Translators
                 case DatabaseConstraintsConstants.UniqueNotificationUserIdDeduplicationKey:
                     throw new NotificationDeuplicationKeyAlreadyExists();
 
-                case DatabaseConstraintsConstants.UniqueObjectStorageDeletionsRequestsObjectKey:
-                    throw new ObjectStorageDeletionRequestForThatObjecyKeyAlreadyExists();
+                // COMMENTED OUT: object storage deletion requests are no longer used
+                //case DatabaseConstraintsConstants.UniqueObjectStorageDeletionsRequestsObjectKey:
+                //    throw new ObjectStorageDeletionRequestForThatObjecyKeyAlreadyExists();
 
                 default:
                     throw new UniqueViolation();

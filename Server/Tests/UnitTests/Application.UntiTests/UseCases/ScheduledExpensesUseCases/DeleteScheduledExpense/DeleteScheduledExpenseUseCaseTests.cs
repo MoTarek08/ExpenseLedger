@@ -65,20 +65,5 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Del
             A.CallTo(() => _unitOfWork.SaveChangesAsync(A<CancellationToken>._)).MustHaveHappenedOnceExactly();
         }
 
-        [Fact]
-        public async Task Execute_WhenAlreadyCancelled_ShouldStillRemove()
-        {
-            var expense = ScheduledExpense.Create(UserId, "Test", 100m, CategoryId, null, CadenceInterval.Monthly, new DateOnly(2026, 7, 1), DateTimeOffset.UtcNow);
-            expense.Cancel();
-
-            A.CallTo(() => _repository.FindAsync(ScheduledExpenseId, A<CancellationToken>._))
-                .Returns(expense);
-
-            var result = await _sut.Execute(ScheduledExpenseId, UserId, default);
-
-            Assert.True(result.IsSuccess);
-            A.CallTo(() => _repository.Remove(expense)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => _unitOfWork.SaveChangesAsync(A<CancellationToken>._)).MustHaveHappenedOnceExactly();
-        }
     }
 }

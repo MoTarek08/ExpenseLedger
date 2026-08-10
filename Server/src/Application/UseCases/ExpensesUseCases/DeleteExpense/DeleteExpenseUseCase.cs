@@ -35,7 +35,7 @@ namespace Application.UseCases.ExpensesUseCases.DeleteExpense
             var expense = await _expensesRepository.FindIncludingFileObjectAsync(expenseId, cancellationToken);
             if (expense is null)
             {
-                _logger.LogInformation("Delete: expense {ExpenseId} already deleted or not found", expenseId);
+                _logger.LogInformation("expense {ExpenseId} already deleted or not found", expenseId);
                 return Result.Success();
             }
 

@@ -12,7 +12,8 @@ namespace IntegrationTests.BackgroundJobs
 
         public void AddOrUpdateCleanUpStaleExpenseFileObjectsWorker() {}
 
-        public void AddOrUpdateObjectStorageDeletionCleanupWorker() {}
+        // COMMENTED OUT: object storage deletion requests are no longer used
+        //public void AddOrUpdateObjectStorageDeletionCleanupWorker() {}
 
         public void ScheduleGenerateExpenseFromScheduledExpenseOnNextDueDateWorker(Guid schduledExpenseId, DateOnly expectedDueDate)
         {

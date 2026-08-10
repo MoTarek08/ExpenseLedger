@@ -1,3 +1,7 @@
+// COMMENTED OUT: these tests cover ObjectStorageDeletionCleanupJob which is no longer used.
+// Deletion of file objects is now performed immediately when the owning entity is deleted.
+// Keep this code for potential future use (uncomment together with the job itself).
+/*
 using Application.Exceptions.ObjectStorageExceptions;
 using Application.Interfaces.DateTimeProvider;
 using Application.Interfaces.ObjectStorage;
@@ -175,3 +179,5 @@ namespace UnitTests.Infrastructure.UnitTests.BackgroundJobs
         }
     }
 }
+
+*/

@@ -25,20 +25,21 @@ namespace Infrastructure.Migrations
                     table.PrimaryKey("PK_expense_categories", x => x.id);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "object_storage_deletion_requests",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    object_key = table.Column<string>(type: "text", nullable: false),
-                    storage_provider = table.Column<int>(type: "int", nullable: false),
-                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    processed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_object_storage_deletion_requests", x => x.id);
-                });
+            // COMMENTED OUT: ObjectStorageDeletionRequest table is no longer used
+            //migrationBuilder.CreateTable(
+            //    name: "object_storage_deletion_requests",
+            //    columns: table => new
+            //    {
+            //        id = table.Column<Guid>(type: "uuid", nullable: false),
+            //        object_key = table.Column<string>(type: "text", nullable: false),
+            //        storage_provider = table.Column<int>(type: "int", nullable: false),
+            //        created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+            //        processed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+            //    },
+            //    constraints: table =>
+            //    {
+            //        table.PrimaryKey("PK_object_storage_deletion_requests", x => x.id);
+            //    });
 
             migrationBuilder.CreateTable(
                 name: "users",
@@ -492,16 +493,17 @@ namespace Infrastructure.Migrations
                 columns: new[] { "user_id", "dedup_key" },
                 unique: true);
 
-            migrationBuilder.CreateIndex(
-                name: "IX_object_storage_deletion_requests_processed_at",
-                table: "object_storage_deletion_requests",
-                column: "processed_at");
+            // COMMENTED OUT: ObjectStorageDeletionRequest table is no longer used
+            //migrationBuilder.CreateIndex(
+            //    name: "IX_object_storage_deletion_requests_processed_at",
+            //    table: "object_storage_deletion_requests",
+            //    column: "processed_at");
 
-            migrationBuilder.CreateIndex(
-                name: "UQ_object_storage_deletion_requests_object_key",
-                table: "object_storage_deletion_requests",
-                column: "object_key",
-                unique: true);
+            //migrationBuilder.CreateIndex(
+            //    name: "UQ_object_storage_deletion_requests_object_key",
+            //    table: "object_storage_deletion_requests",
+            //    column: "object_key",
+            //    unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_refresh_tokens_revoked_at",
@@ -601,8 +603,9 @@ namespace Infrastructure.Migrations
             migrationBuilder.DropTable(
                 name: "notifications");
 
-            migrationBuilder.DropTable(
-                name: "object_storage_deletion_requests");
+            // COMMENTED OUT: ObjectStorageDeletionRequest table is no longer used
+            //migrationBuilder.DropTable(
+            //    name: "object_storage_deletion_requests");
 
             migrationBuilder.DropTable(
                 name: "refresh_tokens");
