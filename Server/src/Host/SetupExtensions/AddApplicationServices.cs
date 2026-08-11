@@ -5,14 +5,15 @@ using Application.UseCases.AuthUseCases.Register;
 using Application.UseCases.BudgetUseCases.GetRemainingBudget;
 using Application.UseCases.CategoriesUseCases.GetAllCategories;
 using Application.UseCases.CategoriesUseCases.GetCategoryByCode;
-using Application.UseCases.ExpensesUseCases.ConfirmImageUpload;
+using Application.UseCases.ExpensesFileObjectsUseCases.ConfirmExpenseFileUpload;
+using Application.UseCases.ExpensesFileObjectsUseCases.DeleteExpenseFile;
+using Application.UseCases.ExpensesFileObjectsUseCases.UploadExpenseFile;
 using Application.UseCases.ExpensesUseCases.CreateExpenseNamespace;
 using Application.UseCases.ExpensesUseCases.DeleteExpense;
 using Application.UseCases.ExpensesUseCases.GetExpenseById;
 using Application.UseCases.ExpensesUseCases.GetExpensesByDay;
 using Application.UseCases.ExpensesUseCases.SearchExpenses;
 using Application.UseCases.ExpensesUseCases.UpdateExpense;
-using Application.UseCases.ExpensesUseCases.UploadExpenseFile;
 using Application.UseCases.NotesUseCases.CreateNote;
 using Application.UseCases.NotesUseCases.DeleteNote;
 using Application.UseCases.NotesUseCases.GetNoteById;
@@ -75,10 +76,15 @@ namespace Host.SetupExtensions
             services.AddScoped<UpdateExpenseUseCase>();
             services.AddScoped<GetExpensesByDayUseCase>();
             services.AddScoped<SearchExpensesUseCase>();
-            services.AddScoped<UploadExpenseFileUseCase>();
-            services.AddScoped<ConfirmExpenseFileUploadUseCase>();
             services.AddScoped<DeleteExpenseUseCase>();
             services.AddScoped<GetExpenseByIdUseCase>();
+
+
+            services.AddScoped<UploadExpenseFileObjectUseCase>();
+            services.AddScoped<ConfirmExpenseFileObjectUploadUseCase>();
+            services.AddScoped<DeleteExpenseFileObjectUseCase>();
+
+
 
             services.AddScoped<CreateNoteUseCase>();
             services.AddScoped<UpdateNoteUseCase>();

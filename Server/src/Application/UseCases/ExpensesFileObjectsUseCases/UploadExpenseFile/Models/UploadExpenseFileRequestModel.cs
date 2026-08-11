@@ -1,4 +1,4 @@
-﻿namespace Application.UseCases.ExpensesUseCases.UploadExpenseFile.Models
+﻿namespace Application.UseCases.ExpensesFileObjectsUseCases.UploadExpenseFile.Models
 {
     public sealed record UploadExpenseFileRequestModel(
         string ContentType,

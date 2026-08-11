@@ -1,4 +1,4 @@
-﻿namespace Application.UseCases.ExpensesUseCases.ConfirmExpenseFileUpload.Models
+﻿namespace Application.UseCases.ExpensesFileObjectsUseCases.ConfirmExpenseFileUpload.Models
 {
     public sealed record ConfirmExpenseFileUploadRequestModel(
         Guid UploadedFileId,

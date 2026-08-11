@@ -1,5 +1,5 @@
 ﻿using Application.ApplicationConstantsNamesapce;
-using Application.UseCases.ExpensesUseCases.UploadExpenseFile.Models;
+using Application.UseCases.ExpensesFileObjectsUseCases.UploadExpenseFile.Models;
 using Domain.BusinessInvariants.BusinessValidationConstantsNamespace;
 using FluentValidation;
 

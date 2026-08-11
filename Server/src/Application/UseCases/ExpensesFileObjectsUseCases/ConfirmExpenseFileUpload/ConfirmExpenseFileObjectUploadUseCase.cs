@@ -1,6 +1,5 @@
 ﻿using Application.ErrorNamespace;
 using Application.ErrorNamespace.ErrorCodesNamespace;
-using Application.Interfaces.BackgroundJobs;
 using Application.Interfaces.DateTimeProvider;
 using Application.Interfaces.ObjectStorage;
 using Application.Interfaces.Repositories;
@@ -10,24 +9,24 @@ using Application.Models.Result;
 using Domain.Entities.DomainEnums;
 using Microsoft.Extensions.Logging;
 
-namespace Application.UseCases.ExpensesUseCases.ConfirmImageUpload
+namespace Application.UseCases.ExpensesFileObjectsUseCases.ConfirmExpenseFileUpload
 {
-    public class ConfirmExpenseFileUploadUseCase
+    public class ConfirmExpenseFileObjectUploadUseCase
     {
         private readonly IExpensesRepository _expensesRepository;
         private readonly IExpensesFileObjectsRepository _expensesFileObjectsRepository;
         private readonly IUnitOfWork _unitOfWork;
         private IObjectStorageService _objectStorageService;
         private readonly IDateProvider _dateTimeProvider;
-        private readonly ILogger<ConfirmExpenseFileUploadUseCase> _logger;
+        private readonly ILogger<ConfirmExpenseFileObjectUploadUseCase> _logger;
 
-        public ConfirmExpenseFileUploadUseCase(
+        public ConfirmExpenseFileObjectUploadUseCase(
             IExpensesRepository expensesRepository,
             IExpensesFileObjectsRepository expensesFileObjectsRepository,
             IUnitOfWork unitOfWork,
             IObjectStorageService objectStorageService,
             IDateProvider dateTimeProvider,
-            ILogger<ConfirmExpenseFileUploadUseCase> logger)
+            ILogger<ConfirmExpenseFileObjectUploadUseCase> logger)
         {
             _expensesRepository = expensesRepository;
             _expensesFileObjectsRepository = expensesFileObjectsRepository;
@@ -67,7 +66,7 @@ namespace Application.UseCases.ExpensesUseCases.ConfirmImageUpload
             }
 
 
-            if (expenseFile.Status is not FileObjectStatus.PendingUpload)
+            if (expenseFile.Status is not ExpenseFileObjectStatus.PendingUpload)
             {
                 _logger.LogWarning("Confirm failed: file {FileId} has invalid status {Status}", uploadedFileId, expenseFile.Status);
                 return Result.Failure(new Error(ExpensesErrorCodes.EXPENSE_INVALID_FILE_STATE));

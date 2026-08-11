@@ -1,30 +1,30 @@
-﻿using Domain.Entities.FileObjectNamespace;
-using Application.ApplicationConstantsNamesapce;
+﻿using Application.ApplicationConstantsNamesapce;
 using Application.Interfaces.DateTimeProvider;
 using Application.Interfaces.ObjectStorage;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.UnitOfWork;
 using Application.Models;
-using Application.UseCases.ExpensesUseCases.UploadExpenseFile.Models;
 using Application.Models.Result;
+using Application.UseCases.ExpensesFileObjectsUseCases.UploadExpenseFile.Models;
+using Domain.Entities.FileObjectNamespace;
 using Microsoft.Extensions.Logging;
 
-namespace Application.UseCases.ExpensesUseCases.UploadExpenseFile
+namespace Application.UseCases.ExpensesFileObjectsUseCases.UploadExpenseFile
 {
-    public class UploadExpenseFileUseCase
+    public class UploadExpenseFileObjectUseCase
     {
         private readonly IObjectStorageService _objectStorageService;
         private readonly IDateProvider _dateTimeProvider;
         private readonly IExpensesFileObjectsRepository _fileObjectsRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<UploadExpenseFileUseCase> _logger;
+        private readonly ILogger<UploadExpenseFileObjectUseCase> _logger;
 
-        public UploadExpenseFileUseCase(
+        public UploadExpenseFileObjectUseCase(
             IUnitOfWork unitOfWork,
             IExpensesFileObjectsRepository fileObjectsRepository,
             IObjectStorageService objectStorageService,
             IDateProvider dateTimeProvider,
-            ILogger<UploadExpenseFileUseCase> logger
+            ILogger<UploadExpenseFileObjectUseCase> logger
             )
         {
             _objectStorageService = objectStorageService;

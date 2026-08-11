@@ -1,7 +1,4 @@
-﻿using Asp.Versioning;
-using Application.ErrorNamespace.ErrorCodesNamespace;
-using Application.UseCases.ExpensesUseCases.ConfirmExpenseFileUpload.Models;
-using Application.UseCases.ExpensesUseCases.ConfirmImageUpload;
+﻿using Application.ErrorNamespace.ErrorCodesNamespace;
 using Application.UseCases.ExpensesUseCases.CreateExpense.Models;
 using Application.UseCases.ExpensesUseCases.CreateExpenseNamespace;
 using Application.UseCases.ExpensesUseCases.CreateExpenseNamespace.Models;
@@ -9,25 +6,22 @@ using Application.UseCases.ExpensesUseCases.DeleteExpense;
 using Application.UseCases.ExpensesUseCases.GetExpenseById;
 using Application.UseCases.ExpensesUseCases.GetExpensesByDay;
 using Application.UseCases.ExpensesUseCases.GetExpensesByDay.Models;
+using Application.UseCases.ExpensesUseCases.Models;
 using Application.UseCases.ExpensesUseCases.SearchExpenses;
 using Application.UseCases.ExpensesUseCases.SearchExpenses.Models;
 using Application.UseCases.ExpensesUseCases.UpdateExpense;
 using Application.UseCases.ExpensesUseCases.UpdateExpense.Models;
-using Application.UseCases.ExpensesUseCases.UploadExpenseFile;
-using Application.UseCases.ExpensesUseCases.UploadExpenseFile.Models;
-using Application.UseCases.ExpensesUseCases.Models;
 using Application.UseCases.NotificationsUseCases.Models;
+using Asp.Versioning;
 using Host.Attributes;
 using Host.Controllers.ControllersExtenstions;
 using Host.ProblemDetails.Problems;
-using Host.RateLimiters;
 using Host.Swagger.ResponsesExamples;
 using Host.Validation.Validators;
 using Host.Validation.ValidatorsNamespace;
 using Infrastructure.Authorization.Policies.PloiciesNamesConstantsNamespace;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -42,8 +36,6 @@ namespace Host.Controllers.ExpensesControllerNamespace
         private readonly CreateExpenseUseCase _createExpenseUseCase;
         private readonly GetExpensesByDayUseCase _getExpensesByDayUseCase;
         private readonly SearchExpensesUseCase _searchExpensesUseCase;
-        private readonly UploadExpenseFileUseCase _uploadExpenseFileUseCase;
-        private readonly ConfirmExpenseFileUploadUseCase _confirmExpenseFileUploadUseCase;
         private readonly UpdateExpenseUseCase _updateUseCase;
         private readonly DeleteExpenseUseCase _deleteExpenseUseCase;
         private readonly GetExpenseByIdUseCase _getExpenseByIdUseCase;
@@ -52,8 +44,6 @@ namespace Host.Controllers.ExpensesControllerNamespace
             CreateExpenseUseCase createExpenseUseCase,
             GetExpensesByDayUseCase getExpensesByDayUseCase,
             SearchExpensesUseCase searchExpensesUseCase,
-            UploadExpenseFileUseCase uploadExpenseFileUseCase,
-            ConfirmExpenseFileUploadUseCase confirmExpenseFileUploadUseCase,
             UpdateExpenseUseCase updateUseCase,
             DeleteExpenseUseCase deleteExpenseUseCase,
             GetExpenseByIdUseCase getExpenseByIdUseCase)
@@ -61,8 +51,6 @@ namespace Host.Controllers.ExpensesControllerNamespace
             _createExpenseUseCase = createExpenseUseCase;
             _getExpensesByDayUseCase = getExpensesByDayUseCase;
             _searchExpensesUseCase = searchExpensesUseCase;
-            _uploadExpenseFileUseCase = uploadExpenseFileUseCase;
-            _confirmExpenseFileUploadUseCase = confirmExpenseFileUploadUseCase;
             _updateUseCase = updateUseCase;
             _deleteExpenseUseCase = deleteExpenseUseCase;
             _getExpenseByIdUseCase = getExpenseByIdUseCase;
@@ -214,75 +202,6 @@ namespace Host.Controllers.ExpensesControllerNamespace
             return Ok(result.Data);
         }
 
-
-        /// <summary>
-        /// Initiates a file upload by creating a pending file record and returning a presigned upload URL.
-        /// </summary>
-        /// <returns>A presigned URL for direct upload and the file object ID for later confirmation.</returns>
-        /// <remarks>
-        /// This is the first step of a two-step upload flow. After uploading to the presigned URL,
-        /// call the confirm endpoint to link the file to an expense.
-        /// A financial profile is required.
-        /// </remarks>
-        [HttpPut("upload")]
-        [Authorize(Policy = PoliciesNamesConstants.HasFinancialProfile)]
-        [EnableRateLimiting(RateLimitingPolicies.Upload)]
-        [SwaggerRequestExample(typeof(UploadExpenseFileRequestModel), typeof(UploadExpenseFileRequestModelExample))]
-        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(UploadExpenseFileResponseModel))]
-        [SwaggerResponseExample(StatusCodes.Status200OK, typeof(UploadExpenseFileResponseModelExample))]
-        public async Task<ActionResult<UploadExpenseFileResponseModel>> Upload(
-            UploadExpenseFileRequestModel requestModel,
-            [FromServices] UploadExpenseFileRequestModelValidator validator,
-            CancellationToken cancellationToken)
-        {
-            var validationResult = validator.Validate(requestModel);
-            if (!validationResult.IsValid)
-                return this.ValidationFailureResponse(validationResult.Errors);
-
-            var userId = this.GetUserIdFromClaims();
-            var result = await _uploadExpenseFileUseCase.Execute(userId, requestModel, cancellationToken);
-            if (result.IsFailure)
-                return this.FromProblem(AllProblems.Get(result.Error!.Code));
-
-            return Ok(result.Data);
-        }
-
-        /// <summary>
-        /// Confirms a previously uploaded file and links it to an expense.
-        /// </summary>
-        /// <remarks>
-        /// The file must have been uploaded to the presigned URL obtained from the upload endpoint.
-        /// The file must be in PendingUpload state and not already linked to another expense.
-        /// The expense must not already have a linked file, an expense can only have one file at a time.
-        /// A financial profile is required.
-        /// </remarks>
-        [HttpPost("upload/confirm")]
-        [Authorize(Policy = PoliciesNamesConstants.HasFinancialProfile)]
-        [SwaggerRequestExample(typeof(ConfirmExpenseFileUploadRequestModel), typeof(ConfirmExpenseFileUploadRequestModelExample))]
-        [SwaggerResponse(StatusCodes.Status204NoContent)]
-        [ProducesError(ExpensesErrorCodes.EXPENSE_NOT_FOUND)]
-        [ProducesError(ExpensesErrorCodes.EXPENSE_ALREADY_HAS_A_FILE)]
-        [ProducesError(ExpensesErrorCodes.EXPENSE_FILE_NOT_FOUND)]
-        [ProducesError(ExpensesErrorCodes.EXPENSE_FILE_ALREADY_LINKED_TO_OTHER_EXPENSE)]
-        [ProducesError(ExpensesErrorCodes.EXPENSE_INVALID_FILE_STATE)]
-        [ProducesError(ExpensesErrorCodes.EXPENSE_FILE_NOT_UPLOADED_YET)]
-        public async Task<ActionResult> Confirm(
-            ConfirmExpenseFileUploadRequestModel requestModel,
-            [FromServices] ConfirmExpenseFileUploadRequestModelValidator validator,
-            CancellationToken cancellationToken)
-        {
-            var validationResult = validator.Validate(requestModel);
-            if (!validationResult.IsValid)
-                return this.ValidationFailureResponse(validationResult.Errors);
-
-            var userId = this.GetUserIdFromClaims();
-            var result = await _confirmExpenseFileUploadUseCase.Execute(requestModel.UploadedFileId, requestModel.ExpenseId, userId, cancellationToken);
-
-            if (result.IsFailure)
-                return this.FromProblem(AllProblems.Get(result.Error!.Code));
-
-            return NoContent();
-        }
 
         /// <summary>
         /// Deletes an expense for the authenticated user.

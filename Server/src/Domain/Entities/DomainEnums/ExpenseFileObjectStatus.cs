@@ -1,8 +1,6 @@
-﻿
-
-namespace Domain.Entities.DomainEnums
+﻿namespace Domain.Entities.DomainEnums
 {
-    public enum FileObjectStatus
+    public enum ExpenseFileObjectStatus
     {
         PendingUpload = 1,
         Uploaded = 2,

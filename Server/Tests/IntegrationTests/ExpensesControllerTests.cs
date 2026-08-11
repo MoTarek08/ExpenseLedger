@@ -2,12 +2,10 @@ using Application.Interfaces.BackgroundJobs;
 using Application.Interfaces.ObjectStorage.Models;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.UnitOfWork;
-using Application.UseCases.ExpensesUseCases.ConfirmExpenseFileUpload.Models;
 using Application.UseCases.ExpensesUseCases.CreateExpense.Models;
 using Application.UseCases.ExpensesUseCases.CreateExpenseNamespace.Models;
 using Application.UseCases.ExpensesUseCases.Models;
 using Application.UseCases.ExpensesUseCases.UpdateExpense.Models;
-using Application.UseCases.ExpensesUseCases.UploadExpenseFile.Models;
 using Application.UseCases.NotificationsUseCases.Models;
 using Domain.Entities.DomainEnums;
 using Domain.Entities.FileObjectNamespace;
@@ -571,7 +569,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    [Fact]
+[Fact]
     public async Task Delete_ExpenseWithLinkedFile_ShouldDeleteObjectFromStorageImmediately()
     {
         var auth = await AuthenticationScenarioBuilder.Create(_fixture)
@@ -623,173 +621,6 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
         });
     }
 
-    [Fact]
-    public async Task Confirm_ExpenseAlreadyHasFile_ShouldReturnConflict()
-    {
-        var auth = await AuthenticationScenarioBuilder.Create(_fixture)
-            .WithRefreshToken()
-            .BuildAsync();
-        await FinancialProfileBuilder.Create(_fixture, auth.UserId).BuildAsync();
-        var categoryId = await GetAnyCategoryId();
-        var expenseId = await CreateExpenseInDb(auth.UserId, categoryId);
-
-        var now = DateTimeOffset.UtcNow;
-        using (var scope = _fixture.Factory.CreateScope())
-        {
-            var sp = scope.ServiceProvider;
-            var repo = sp.GetRequiredService<IExpensesFileObjectsRepository>();
-            var unitOfWork = sp.GetRequiredService<IUnitOfWork>();
-            var linkedFile = ExpenseFileObject.CreatePendingUpload(
-                auth.UserId,
-                $"integration-test/{auth.UserId}/{Guid.NewGuid()}.jpg",
-                StorageProvider.MinIO,
-                "image/jpeg",
-                1024,
-                now.AddHours(-1),
-                now.AddMinutes(15));
-            linkedFile.MarkAsUploaded(now);
-            linkedFile.LinkToExpense(expenseId);
-            repo.Add(linkedFile);
-            await unitOfWork.SaveChangesAsync();
-        }
-
-        var fileObjectId = await CreatePendingFileObjectInDb(auth.UserId);
-
-        var requestModel = new ConfirmExpenseFileUploadRequestModel(fileObjectId, expenseId);
-        var request = new HttpRequestMessage(HttpMethod.Post,
-            "/api/v1/Expenses/upload/confirm")
-        {
-            Content = JsonHelper.Serialize(requestModel)
-        };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-
-        var response = await _client.SendAsync(request);
-
-        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task Upload_Success_ShouldReturnPresignedUrl()
-    {
-        var auth = await AuthenticationScenarioBuilder.Create(_fixture)
-            .WithRefreshToken()
-            .BuildAsync();
-        await FinancialProfileBuilder.Create(_fixture, auth.UserId).BuildAsync();
-        var requestModel = new UploadExpenseFileRequestModel(
-            "image/jpeg", 1024 * 100, "test.jpg");
-
-        var request = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Expenses/upload")
-        {
-            Content = JsonHelper.Serialize(requestModel)
-        };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<UploadExpenseFileResponseModel>(JsonHelper.Options);
-        Assert.NotNull(body);
-        Assert.NotEmpty(body.UploadUrl);
-        Assert.NotEqual(Guid.Empty, body.FileObjectId);
-
-        await DatabaseAssertions.Verify(_fixture, async db =>
-        {
-            var file = await db.ExpensesFileObjects.FindAsync(body.FileObjectId);
-            Assert.NotNull(file);
-            Assert.Equal(FileObjectStatus.PendingUpload, file.Status);
-        });
-    }
-
-    [Fact]
-    public async Task Upload_InvalidContentType_ShouldReturn400()
-    {
-        var auth = await AuthenticationScenarioBuilder.Create(_fixture)
-            .WithRefreshToken()
-            .BuildAsync();
-        await FinancialProfileBuilder.Create(_fixture, auth.UserId).BuildAsync();
-        var requestModel = new UploadExpenseFileRequestModel(
-            "application/pdf", 1024, "test.pdf");
-
-        var request = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Expenses/upload")
-        {
-            Content = JsonHelper.Serialize(requestModel)
-        };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
-
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task Confirm_FileNotUploaded_ShouldReturnError()
-    {
-        var auth = await AuthenticationScenarioBuilder.Create(_fixture)
-            .WithRefreshToken()
-            .BuildAsync();
-        await FinancialProfileBuilder.Create(_fixture, auth.UserId).BuildAsync();
-        var categoryId = await GetAnyCategoryId();
-        var expenseId = await CreateExpenseInDb(auth.UserId, categoryId);
-
-        var fileObjectId = await CreatePendingFileObjectInDb(auth.UserId);
-
-        var requestModel = new ConfirmExpenseFileUploadRequestModel(fileObjectId, expenseId);
-        var request = new HttpRequestMessage(HttpMethod.Post,
-            "/api/v1/Expenses/upload/confirm")
-        {
-            Content = JsonHelper.Serialize(requestModel)
-        };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-
-        A.CallTo(() => _fixture.Factory.FakeObjectStorageClient
-            .GetFileObjectInfoAsync(A<string>._, A<string>._, A<CancellationToken>._))
-            .Returns(new FileObjectInfo(false));
-
-        var response = await _client.SendAsync(request);
-
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task Confirm_FileUploaded_ShouldUpdateAndReturnSuccess()
-    {
-        var auth = await AuthenticationScenarioBuilder.Create(_fixture)
-            .WithRefreshToken()
-            .BuildAsync();
-        await FinancialProfileBuilder.Create(_fixture, auth.UserId).BuildAsync();
-        var categoryId = await GetAnyCategoryId();
-        var expenseId = await CreateExpenseInDb(auth.UserId, categoryId);
-
-        var fileObjectId = await CreatePendingFileObjectInDb(auth.UserId);
-
-        var requestModel = new ConfirmExpenseFileUploadRequestModel(fileObjectId, expenseId);
-        var request = new HttpRequestMessage(HttpMethod.Post,
-            "/api/v1/Expenses/upload/confirm")
-        {
-            Content = JsonHelper.Serialize(requestModel)
-        };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-
-        long megabyte = 1024 * 1024 * 1024;
-        A.CallTo(() => _fixture.Factory.FakeObjectStorageClient
-            .GetFileObjectInfoAsync(A<string>._, A<string>._, A<CancellationToken>._))
-            .Returns(new FileObjectInfo(true, megabyte));
-
-        var response = await _client.SendAsync(request);
-
-        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-        await DatabaseAssertions.Verify(_fixture, async db =>
-        {
-            var file = await db.ExpensesFileObjects.FindAsync(fileObjectId);
-            Assert.Equal(file!.ExpenseId, expenseId);
-            Assert.Equal(FileObjectStatus.Uploaded, file.Status);
-            Assert.Equal(megabyte, file.FileSizeInBytes);
-        });
-    }
-
-
-
-
-
-
 
 
 
@@ -810,27 +641,5 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
             .WithAmount(amount)
             .WithSpentOn(spentOn ?? DateOnly.FromDateTime(DateTime.UtcNow))
             .BuildAsync();
-    }
-
-    private async Task<Guid> CreatePendingFileObjectInDb(Guid userId, string? objectKey = null)
-    {
-        using var scope = _fixture.Factory.CreateScope();
-        var sp = scope.ServiceProvider;
-        var repo = sp.GetRequiredService<IExpensesFileObjectsRepository>();
-        var unitOfWork = sp.GetRequiredService<IUnitOfWork>();
-
-        var now = DateTimeOffset.UtcNow;
-        var file = ExpenseFileObject.CreatePendingUpload(
-            userId,
-            objectKey ?? $"integration-test/{userId}/{Guid.NewGuid()}.jpg",
-            StorageProvider.MinIO,
-            "image/jpeg",
-            1024,
-            now,
-            now.AddMinutes(15));
-
-        repo.Add(file);
-        await unitOfWork.SaveChangesAsync();
-        return file.Id;
     }
 }

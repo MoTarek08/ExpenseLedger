@@ -6,38 +6,38 @@ using Application.Interfaces.ObjectStorage.Models;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.RepositoriesNamespace;
 using Application.Interfaces.UnitOfWork;
-using Application.UseCases.ExpensesUseCases.ConfirmImageUpload;
+using Application.UseCases.ExpensesFileObjectsUseCases.ConfirmExpenseFileUpload;
 using Domain.Entities.DomainEnums;
 using Domain.Entities.ExpenseNamespace;
 using Domain.Entities.FileObjectNamespace;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
 
-namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.ConfirmExpenseFileUpload
+namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.ConfirmExpenseFileUpload
 {
-    public class ConfirmExpenseFileUploadUseCaseTests
+    public class ConfirmExpenseFileObjectUploadUseCaseTests
     {
         private readonly IExpensesRepository _expensesRepository;
         private readonly IExpensesFileObjectsRepository _expensesFileObjectsRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IObjectStorageService _objectStorageService;
         private readonly IDateProvider _dateTimeProvider;
-        private readonly ILogger<ConfirmExpenseFileUploadUseCase> _logger;
-        private readonly ConfirmExpenseFileUploadUseCase _sut;
+        private readonly ILogger<ConfirmExpenseFileObjectUploadUseCase> _logger;
+        private readonly ConfirmExpenseFileObjectUploadUseCase _sut;
 
         private static readonly Guid UserId = Guid.Parse("bff0aee8-b680-4546-8e9e-f253cd2d5930");
         private static readonly Guid ExpenseId = Guid.Parse("851813ff-22a0-49f8-b13b-9e1b8879da9a");
         private static readonly Guid FileId = Guid.Parse("ae0e7bf0-5a42-45ee-a7e1-4aff4a5765f1");
 
-        public ConfirmExpenseFileUploadUseCaseTests()
+        public ConfirmExpenseFileObjectUploadUseCaseTests()
         {
             _expensesRepository = A.Fake<IExpensesRepository>();
             _expensesFileObjectsRepository = A.Fake<IExpensesFileObjectsRepository>();
             _unitOfWork = A.Fake<IUnitOfWork>();
             _objectStorageService = A.Fake<IObjectStorageService>();
             _dateTimeProvider = A.Fake<IDateProvider>();
-            _logger = A.Fake<ILogger<ConfirmExpenseFileUploadUseCase>>();
-            _sut = new ConfirmExpenseFileUploadUseCase(
+            _logger = A.Fake<ILogger<ConfirmExpenseFileObjectUploadUseCase>>();
+            _sut = new ConfirmExpenseFileObjectUploadUseCase(
                 _expensesRepository,
                 _expensesFileObjectsRepository,
                 _unitOfWork,

@@ -20,6 +20,11 @@ namespace Infrastructure.DatabaseRelatedImplementations.Reposetories
             _dbContext.ExpensesFileObjects.Add(file);
         }
 
+        public void Remove(ExpenseFileObject file)
+        {
+            _dbContext.ExpensesFileObjects.Remove(file);
+        }
+
         public async Task<ExpenseFileObject?> FindAsync(Guid fileId, CancellationToken cancellationToken)
         {
             return await _dbContext.ExpensesFileObjects.FindAsync(new object[] { fileId }, cancellationToken);
@@ -28,7 +33,7 @@ namespace Infrastructure.DatabaseRelatedImplementations.Reposetories
         public async Task<List<ExpenseFileObject>> FindsStaleUploadsAsync(Guid lastSeenId, DateTimeOffset now, int batchSize)
         {
             var staleBatch = _dbContext.ExpensesFileObjects
-                .Where(x => x.Id > lastSeenId && x.Status == FileObjectStatus.PendingUpload && x.UploadUrlExpiresAt < now.AddHours(-2))
+                .Where(x => x.Id > lastSeenId && x.Status == ExpenseFileObjectStatus.PendingUpload && x.UploadUrlExpiresAt < now.AddHours(-2))
                 .OrderBy(x => x.Id)
                 .Take(batchSize);
 

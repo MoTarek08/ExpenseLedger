@@ -3,34 +3,34 @@ using Application.Interfaces.ObjectStorage;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.UnitOfWork;
 using Application.Models;
-using Application.UseCases.ExpensesUseCases.UploadExpenseFile;
-using Application.UseCases.ExpensesUseCases.UploadExpenseFile.Models;
+using Application.UseCases.ExpensesFileObjectsUseCases.UploadExpenseFile;
+using Application.UseCases.ExpensesFileObjectsUseCases.UploadExpenseFile.Models;
 using Domain.Entities.DomainEnums;
 using Domain.Entities.FileObjectNamespace;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
 
-namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.UploadExpenseFile
+namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.UploadExpenseFile
 {
-    public class UploadExpenseFileUseCaseTests
+    public class UploadExpenseFileObjectUseCaseTests
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IExpensesFileObjectsRepository _fileObjectsRepository;
         private readonly IObjectStorageService _objectStorageService;
         private readonly IDateProvider _dateTimeProvider;
-        private readonly ILogger<UploadExpenseFileUseCase> _logger;
-        private readonly UploadExpenseFileUseCase _sut;
+        private readonly ILogger<UploadExpenseFileObjectUseCase> _logger;
+        private readonly UploadExpenseFileObjectUseCase _sut;
 
         private static readonly Guid UserId = Guid.Parse("bff0aee8-b680-4546-8e9e-f253cd2d5930");
 
-        public UploadExpenseFileUseCaseTests()
+        public UploadExpenseFileObjectUseCaseTests()
         {
             _unitOfWork = A.Fake<IUnitOfWork>();
             _fileObjectsRepository = A.Fake<IExpensesFileObjectsRepository>();
             _objectStorageService = A.Fake<IObjectStorageService>();
             _dateTimeProvider = A.Fake<IDateProvider>();
-            _logger = A.Fake<ILogger<UploadExpenseFileUseCase>>();
-            _sut = new UploadExpenseFileUseCase(
+            _logger = A.Fake<ILogger<UploadExpenseFileObjectUseCase>>();
+            _sut = new UploadExpenseFileObjectUseCase(
                 _unitOfWork,
                 _fileObjectsRepository,
                 _objectStorageService,

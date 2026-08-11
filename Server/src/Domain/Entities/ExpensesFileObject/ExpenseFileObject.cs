@@ -19,7 +19,7 @@ namespace Domain.Entities.FileObjectNamespace
         public long FileSizeInBytes { get; private set; }
         public string? OriginalFileName { get; private set; } = string.Empty;
 
-        public FileObjectStatus Status { get; private set; }
+        public ExpenseFileObjectStatus Status { get; private set; }
 
         public DateTimeOffset StartedProcessingAt { get; private set; } // Represents the moment the pre-signed url for upload was created
         public DateTimeOffset UploadUrlExpiresAt { get; private set; }
@@ -38,7 +38,7 @@ namespace Domain.Entities.FileObjectNamespace
             StorageProvider storageProvider,
             string contentType,
             long fileSizeInBytes,
-            FileObjectStatus status,
+            ExpenseFileObjectStatus status,
             DateTimeOffset startedProcessingAt,
             DateTimeOffset uploadUrlExpiresAt,
             string? originalFileName = null)
@@ -93,7 +93,7 @@ namespace Domain.Entities.FileObjectNamespace
                 storageProvider,
                 contentType,
                 fileSizeInBytes,
-                FileObjectStatus.PendingUpload,
+                ExpenseFileObjectStatus.PendingUpload,
                 startedProcessingAt,
                 uploadUrlExpiresAt,
                 originalFileName);
@@ -101,7 +101,7 @@ namespace Domain.Entities.FileObjectNamespace
 
         public ExpenseFileObject MarkAsUploaded(DateTimeOffset uploadedAt)
         {
-            if (Status != FileObjectStatus.PendingUpload)
+            if (Status != ExpenseFileObjectStatus.PendingUpload)
                 throw new DomainException("Only pending upload files can be uploaded");
 
             if (uploadedAt < StartedProcessingAt)
@@ -109,7 +109,7 @@ namespace Domain.Entities.FileObjectNamespace
 
 
             UploadedAt = uploadedAt;
-            Status = FileObjectStatus.Uploaded;
+            Status = ExpenseFileObjectStatus.Uploaded;
 
             return this;
         }
@@ -117,7 +117,7 @@ namespace Domain.Entities.FileObjectNamespace
         public ExpenseFileObject ChangeFileSize(long fileSizeInBytes)
         {
 
-            if(Status == FileObjectStatus.Failed)
+            if(Status == ExpenseFileObjectStatus.Failed)
                 throw new DomainException("Files that failed to upload cannot be modefied");
 
             FileSizeInBytes = fileSizeInBytes;
@@ -132,7 +132,7 @@ namespace Domain.Entities.FileObjectNamespace
             if (ExpenseId is not null)
                 throw new DomainException("File is already linked to an expense");
 
-            if (Status != FileObjectStatus.Uploaded)
+            if (Status != ExpenseFileObjectStatus.Uploaded)
                 throw new DomainException("Only uploaded files can be linked to an expense");
 
             ExpenseId = expenseId;

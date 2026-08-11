@@ -60,6 +60,8 @@ namespace IntegrationTests.CustomWebApplicationFactoryNamespace
 
             await using var hangfireConnection = new NpgsqlConnection(HangfireDb.GetConnectionString());
             await hangfireConnection.OpenAsync();
+            var shouldResetHangfire = true;
+
             if (_hangfireRespawner is null)
             {
                 try
@@ -68,13 +70,14 @@ namespace IntegrationTests.CustomWebApplicationFactoryNamespace
                 }
                 catch (InvalidOperationException ex) when (ex.Message.Contains("No tables found"))
                 {
-                    return;
+                    shouldResetHangfire = false;
                 }
-
-                Fake.ClearRecordedCalls(Factory.FakeObjectStorageClient);
             }
 
-            await _hangfireRespawner.ResetAsync(hangfireConnection);
+            if(shouldResetHangfire)
+                await _hangfireRespawner!.ResetAsync(hangfireConnection);
+
+            Fake.ClearRecordedCalls(Factory.FakeObjectStorageClient);
 
             var endpoint = $"{Minio.Hostname}:{Minio.GetMappedPublicPort(9000)}";
             var minioClient = new MinioClient()

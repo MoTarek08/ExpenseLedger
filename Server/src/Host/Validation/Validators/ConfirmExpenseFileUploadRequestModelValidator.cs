@@ -1,4 +1,4 @@
-﻿using Application.UseCases.ExpensesUseCases.ConfirmExpenseFileUpload.Models;
+﻿using Application.UseCases.ExpensesFileObjectsUseCases.ConfirmExpenseFileUpload.Models;
 using FluentValidation;
 
 namespace Host.Validation.Validators

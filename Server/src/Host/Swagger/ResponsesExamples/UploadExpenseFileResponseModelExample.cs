@@ -1,4 +1,4 @@
-using Application.UseCases.ExpensesUseCases.UploadExpenseFile.Models;
+using Application.UseCases.ExpensesFileObjectsUseCases.UploadExpenseFile.Models;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace Host.Swagger.ResponsesExamples
