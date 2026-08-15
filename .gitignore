@@ -8,9 +8,6 @@
 [Ll]ogs/
 
 
-# GitHub
-.github/
-
 # User-specific files
 *.user
 *.userosscache
