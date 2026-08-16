@@ -33,25 +33,9 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Host.AddSerilogConfiguration(builder.Configuration);
 
+builder.Services.AddDatabaseConfiguration(builder.Configuration);
 
-
-try
-{
-    builder.Services.AddDatabaseConfiguration(builder.Configuration);
-}
-catch (InvalidOperationException)
-{
-    return;
-}
-
-try
-{
-    builder.Services.AddAuthenticationConfiguration(builder.Configuration);
-}
-catch (InvalidOperationException)
-{
-    return;
-}
+builder.Services.AddAuthenticationConfiguration(builder.Configuration);
 
 builder.Services.AddAuthorizationConfiguration();
 builder.Services.AddBackgroundJobsClientConfiguration(builder.Configuration);

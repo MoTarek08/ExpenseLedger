@@ -48,7 +48,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
                 .Returns((UserCategoryPreference?)null);
             A.CallTo(() => _dateProvider.Now).Returns(DateTimeOffset.UtcNow);
 
-            var result = await _sut.Execute(_userId, _request, default);
+            var result = await _sut.Execute(_userId, _request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _preferencesRepository.Add(A<UserCategoryPreference>._))
@@ -63,7 +63,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
             A.CallTo(() => _categoriesRepository.FindAsync(_categoryId, A<CancellationToken>._))
                 .Returns((ExpenseCategory?)null);
 
-            var result = await _sut.Execute(_userId, _request, default);
+            var result = await _sut.Execute(_userId, _request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(CategoryPreferencesErrorCodes.CATEGORY_PREFERENCE_CATEGORY_NOT_FOUND, result.Error!.Code);
@@ -83,7 +83,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
             A.CallTo(() => _preferencesRepository.FindAsync(_userId, _categoryId, A<CancellationToken>._))
                 .Returns(existingPreference);
 
-            var result = await _sut.Execute(_userId, _request, default);
+            var result = await _sut.Execute(_userId, _request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(CategoryPreferencesErrorCodes.CATEGORY_PREFERENCE_ALREADY_EXISTS, result.Error!.Code);

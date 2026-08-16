@@ -36,7 +36,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersUseCases.GetUserProfile
             A.CallTo(() => _repository.GetFinancialProfileByUserIdAsync(_userId, A<CancellationToken>._))
                 .Returns(profile);
 
-            var result = await _sut.Execute(_userId, default);
+            var result = await _sut.Execute(_userId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -60,7 +60,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersUseCases.GetUserProfile
             A.CallTo(() => _repository.GetFinancialProfileByUserIdAsync(_userId, A<CancellationToken>._))
                 .Returns((UserFinancialProfile?)null);
 
-            var result = await _sut.Execute(_userId, default);
+            var result = await _sut.Execute(_userId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -74,7 +74,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersUseCases.GetUserProfile
             A.CallTo(() => _repository.FindAsync(_userId, A<CancellationToken>._))
                 .Returns((User?)null);
 
-            var result = await _sut.Execute(_userId, default);
+            var result = await _sut.Execute(_userId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(UsersErrorCodes.AUTHORIZED_USER_NOT_FOUND, result.Error!.Code);

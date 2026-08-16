@@ -22,8 +22,8 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
         _client = _fixture.Factory.CreateClient();
     }
 
-    public async Task InitializeAsync() => await _fixture.ResetAsync();
-    public Task DisposeAsync() => Task.CompletedTask;
+    public async ValueTask InitializeAsync() => await _fixture.ResetAsync();
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     [Fact]
     public async Task GetCurrentPeriodNotifications_NoProfile_ShouldReturnEmptyList()
@@ -35,10 +35,10 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/Notifications/current-period");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Empty(body);
     }
@@ -56,10 +56,10 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/Notifications/current-period");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Empty(body);
     }
@@ -77,10 +77,10 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/Notifications/current-period");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Single(body);
         Assert.Equal(notificationId, body[0].Id);
@@ -89,7 +89,7 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
     [Fact]
     public async Task GetCurrentPeriodNotifications_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.GetAsync("/api/v1/Notifications/current-period");
+        var response = await _client.GetAsync("/api/v1/Notifications/current-period", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -104,10 +104,10 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Notifications/{notificationId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<NotificationDto>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<NotificationDto>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Equal(notificationId, body.Id);
         Assert.Equal(auth.UserId, body.UserId);
@@ -127,7 +127,7 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Notifications/{notificationId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -135,7 +135,7 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
     [Fact]
     public async Task GetById_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.GetAsync($"/api/v1/Notifications/{Guid.NewGuid()}");
+        var response = await _client.GetAsync($"/api/v1/Notifications/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -150,7 +150,7 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/v1/Notifications/{notificationId}/read");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -176,7 +176,7 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/v1/Notifications/{notificationId}/read");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -191,12 +191,12 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request1 = new HttpRequestMessage(HttpMethod.Patch, $"/api/v1/Notifications/{notificationId}/read");
         request1.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response1 = await _client.SendAsync(request1);
+        var response1 = await _client.SendAsync(request1, TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.NoContent, response1.StatusCode);
 
         var request2 = new HttpRequestMessage(HttpMethod.Patch, $"/api/v1/Notifications/{notificationId}/read");
         request2.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response2 = await _client.SendAsync(request2);
+        var response2 = await _client.SendAsync(request2, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response2.StatusCode);
     }
@@ -204,7 +204,7 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
     [Fact]
     public async Task MarkAsRead_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.PatchAsync($"/api/v1/Notifications/{Guid.NewGuid()}/read", null);
+        var response = await _client.PatchAsync($"/api/v1/Notifications/{Guid.NewGuid()}/read", null, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -219,7 +219,7 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/Notifications/{notificationId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -245,7 +245,7 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/Notifications/{notificationId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -253,7 +253,7 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
     [Fact]
     public async Task Delete_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.DeleteAsync($"/api/v1/Notifications/{Guid.NewGuid()}");
+        var response = await _client.DeleteAsync($"/api/v1/Notifications/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -273,12 +273,12 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
             var notification = await repo.FindAsync(notificationId, CancellationToken.None);
             Assert.NotNull(notification);
             notification.MarkAsDeleted(DateTimeOffset.UtcNow);
-            await unitOfWork.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/v1/Notifications/{notificationId}/restore");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -305,7 +305,7 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
             var notification = await repo.FindAsync(notificationId, CancellationToken.None);
             Assert.NotNull(notification);
             notification.MarkAsDeleted(DateTimeOffset.UtcNow);
-            await unitOfWork.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         var other = await AuthenticationScenarioBuilder.Create(_fixture)
@@ -314,7 +314,7 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/v1/Notifications/{notificationId}/restore");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -334,12 +334,12 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
             var notification = await repo.FindAsync(notificationId, CancellationToken.None);
             Assert.NotNull(notification);
             notification.MarkAsDeleted(DateTimeOffset.UtcNow.AddHours(-2));
-            await unitOfWork.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/v1/Notifications/{notificationId}/restore");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -347,7 +347,7 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
     [Fact]
     public async Task Restore_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.PatchAsync($"/api/v1/Notifications/{Guid.NewGuid()}/restore", null);
+        var response = await _client.PatchAsync($"/api/v1/Notifications/{Guid.NewGuid()}/restore", null, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -363,10 +363,10 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/Notifications/search");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Equal(2, body.Count);
     }
@@ -382,10 +382,10 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/Notifications/search?PageSize=1");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Single(body);
     }
@@ -393,7 +393,7 @@ public class NotificationsControllerTests : IClassFixture<IntegrationTestFixture
     [Fact]
     public async Task Search_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.GetAsync("/api/v1/Notifications/search");
+        var response = await _client.GetAsync("/api/v1/Notifications/search", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }

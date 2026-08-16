@@ -44,7 +44,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.Restore
             A.CallTo(() => _dateTimeProvider.Now)
                 .Returns(now);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Null(notification.DeletedAt);
@@ -63,7 +63,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.Restore
             A.CallTo(() => _dateTimeProvider.Now)
                 .Returns(now);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(NotificationsErrorCodes.NOTIFICATION_NOT_FOUND, result.Error!.Code);
@@ -78,7 +78,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.Restore
             A.CallTo(() => _notificationsRepository.FindAsync(NotificationId, A<CancellationToken>._))
                 .Returns(notification);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _unitOfWork.SaveChangesAsync(A<CancellationToken>._)).MustNotHaveHappened();
@@ -90,7 +90,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.Restore
             A.CallTo(() => _notificationsRepository.FindAsync(NotificationId, A<CancellationToken>._))
                 .Returns((Notification?)null);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(NotificationsErrorCodes.NOTIFICATION_NOT_FOUND, result.Error!.Code);
@@ -104,7 +104,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.Restore
             A.CallTo(() => _notificationsRepository.FindAsync(NotificationId, A<CancellationToken>._))
                 .Returns(notification);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(NotificationsErrorCodes.NOTIFICATION_NOT_FOUND, result.Error!.Code);

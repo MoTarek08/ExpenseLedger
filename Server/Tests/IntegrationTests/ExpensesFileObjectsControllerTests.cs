@@ -27,12 +27,12 @@ public class ExpensesFileObjectsControllerTests : IClassFixture<IntegrationTestF
         _client = _fixture.Factory.CreateClient();
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _fixture.ResetAsync();
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     [Fact]
     public async Task Upload_Success_ShouldReturnPresignedUrl()
@@ -49,10 +49,10 @@ public class ExpensesFileObjectsControllerTests : IClassFixture<IntegrationTestF
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<UploadExpenseFileResponseModel>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<UploadExpenseFileResponseModel>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.NotEmpty(body.UploadUrl);
         Assert.NotEqual(Guid.Empty, body.FileObjectId);
@@ -80,7 +80,7 @@ public class ExpensesFileObjectsControllerTests : IClassFixture<IntegrationTestF
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -112,7 +112,7 @@ public class ExpensesFileObjectsControllerTests : IClassFixture<IntegrationTestF
             linkedFile.MarkAsUploaded(now);
             linkedFile.LinkToExpense(expenseId);
             repo.Add(linkedFile);
-            await unitOfWork.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         var fileObjectId = await CreatePendingFileObjectInDb(auth.UserId);
@@ -125,7 +125,7 @@ public class ExpensesFileObjectsControllerTests : IClassFixture<IntegrationTestF
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
     }
@@ -154,7 +154,7 @@ public class ExpensesFileObjectsControllerTests : IClassFixture<IntegrationTestF
             .GetFileObjectInfoAsync(A<string>._, A<string>._, A<CancellationToken>._))
             .Returns(new FileObjectInfo(false));
 
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
@@ -184,7 +184,7 @@ public class ExpensesFileObjectsControllerTests : IClassFixture<IntegrationTestF
             .GetFileObjectInfoAsync(A<string>._, A<string>._, A<CancellationToken>._))
             .Returns(new FileObjectInfo(true, megabyte));
 
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         await DatabaseAssertions.Verify(_fixture, async db =>
@@ -214,7 +214,7 @@ public class ExpensesFileObjectsControllerTests : IClassFixture<IntegrationTestF
         var request = new HttpRequestMessage(HttpMethod.Delete,
             $"/api/v1/ExpensesFileObjects/{fileId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         A.CallTo(() => _fixture.Factory.FakeObjectStorageClient
@@ -246,7 +246,7 @@ public class ExpensesFileObjectsControllerTests : IClassFixture<IntegrationTestF
         var request = new HttpRequestMessage(HttpMethod.Delete,
             $"/api/v1/ExpensesFileObjects/{fileId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         A.CallTo(() => _fixture.Factory.FakeObjectStorageClient
@@ -275,7 +275,7 @@ public class ExpensesFileObjectsControllerTests : IClassFixture<IntegrationTestF
         var request = new HttpRequestMessage(HttpMethod.Delete,
             $"/api/v1/ExpensesFileObjects/{fileId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         A.CallTo(() => _fixture.Factory.FakeObjectStorageClient
@@ -300,14 +300,14 @@ public class ExpensesFileObjectsControllerTests : IClassFixture<IntegrationTestF
         var request = new HttpRequestMessage(HttpMethod.Delete,
             $"/api/v1/ExpensesFileObjects/{Guid.NewGuid()}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         A.CallTo(() => _fixture.Factory.FakeObjectStorageClient
             .RemoveObjectAsync(A<string>._, A<string>._, A<CancellationToken>._))
             .MustNotHaveHappened();
     }
-    
+
 
 
 

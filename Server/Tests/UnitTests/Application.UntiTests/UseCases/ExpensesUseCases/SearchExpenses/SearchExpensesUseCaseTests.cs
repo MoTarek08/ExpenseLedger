@@ -34,7 +34,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.SearchExpens
                 .Returns((UserFinancialProfile?)null);
 
             var query = new SearchExpensesQueryParameters(null, null, null, null, null, null, null);
-            var result = await _sut.Execute(UserId, query, CancellationToken.None);
+            var result = await _sut.Execute(UserId, query, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -59,7 +59,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.SearchExpens
             A.CallTo(() => _expensesRepository.GetExpenseDtoAsync(A<IQueryable<Expense>>._, A<CancellationToken>._))
                 .Returns(expenses);
 
-            var result = await _sut.Execute(UserId, query, CancellationToken.None);
+            var result = await _sut.Execute(UserId, query, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -82,7 +82,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.SearchExpens
             A.CallTo(() => _expensesRepository.GetExpenseDtoAsync(A<IQueryable<Expense>>._, A<CancellationToken>._))
                 .Returns(new List<ExpenseDto>());
 
-            var result = await _sut.Execute(UserId, query, CancellationToken.None);
+            var result = await _sut.Execute(UserId, query, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
         }
@@ -104,7 +104,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.SearchExpens
             A.CallTo(() => _expensesRepository.GetExpenseDtoAsync(A<IQueryable<Expense>>._, A<CancellationToken>._))
                 .Returns(new List<ExpenseDto>());
 
-            var result = await _sut.Execute(UserId, query, CancellationToken.None);
+            var result = await _sut.Execute(UserId, query, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
         }

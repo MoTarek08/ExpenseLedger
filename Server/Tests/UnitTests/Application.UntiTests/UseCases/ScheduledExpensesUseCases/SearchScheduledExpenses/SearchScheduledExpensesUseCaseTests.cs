@@ -38,7 +38,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Sea
                         se.Id, se.IsActive, se.Title, se.Amount, se.Cadence,
                         "HOUSING", null, se.FirstDueOn, se.NextDueOn, se.LastProcessedAt, se.CreatedAt)).ToList());
 
-            var result = await _sut.Execute(UserId, queryParams, default);
+            var result = await _sut.Execute(UserId, queryParams, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(queryParams.PageSize, result.Data!.Count);
@@ -63,7 +63,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Sea
                         se.Id, se.IsActive, se.Title, se.Amount, se.Cadence,
                         "HOUSING", null, se.FirstDueOn, se.NextDueOn, se.LastProcessedAt, se.CreatedAt)).ToList());
 
-            var result = await _sut.Execute(UserId, queryParams, default);
+            var result = await _sut.Execute(UserId, queryParams, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.All(result.Data!, dto => Assert.True(dto.IsActive));
@@ -87,7 +87,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Sea
                         se.Id, se.IsActive, se.Title, se.Amount, se.Cadence,
                         "HOUSING", null, se.FirstDueOn, se.NextDueOn, se.LastProcessedAt, se.CreatedAt)).ToList());
 
-            var result = await _sut.Execute(UserId, queryParams, default);
+            var result = await _sut.Execute(UserId, queryParams, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(2, result.Data!.Count);
@@ -105,7 +105,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Sea
             A.CallTo(() => _repository.GetScheduledExpenseDtoAsync(A<IQueryable<ScheduledExpense>>._, A<CancellationToken>._))
                 .Returns(new List<ScheduledExpenseDto>());
 
-            var result = await _sut.Execute(UserId, queryParams, default);
+            var result = await _sut.Execute(UserId, queryParams, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Empty(result.Data!);

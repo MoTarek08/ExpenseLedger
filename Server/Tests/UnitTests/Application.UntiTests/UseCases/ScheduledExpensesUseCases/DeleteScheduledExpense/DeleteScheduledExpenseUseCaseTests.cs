@@ -32,7 +32,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Del
             A.CallTo(() => _repository.FindAsync(ScheduledExpenseId, A<CancellationToken>._))
                 .Returns((ScheduledExpense?)null);
 
-            var result = await _sut.Execute(ScheduledExpenseId, UserId, default);
+            var result = await _sut.Execute(ScheduledExpenseId, UserId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.SCHEDULED_EXPENSE_NOT_FOUND, result.Error!.Code);
@@ -45,7 +45,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Del
             A.CallTo(() => _repository.FindAsync(ScheduledExpenseId, A<CancellationToken>._))
                 .Returns(expense);
 
-            var result = await _sut.Execute(ScheduledExpenseId, UserId, default);
+            var result = await _sut.Execute(ScheduledExpenseId, UserId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.SCHEDULED_EXPENSE_NOT_FOUND, result.Error!.Code);
@@ -58,7 +58,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Del
             A.CallTo(() => _repository.FindAsync(ScheduledExpenseId, A<CancellationToken>._))
                 .Returns(expense);
 
-            var result = await _sut.Execute(ScheduledExpenseId, UserId, default);
+            var result = await _sut.Execute(ScheduledExpenseId, UserId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _repository.Remove(expense)).MustHaveHappenedOnceExactly();

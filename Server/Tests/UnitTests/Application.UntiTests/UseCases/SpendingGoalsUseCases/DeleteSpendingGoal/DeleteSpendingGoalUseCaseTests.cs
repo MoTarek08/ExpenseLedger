@@ -1,4 +1,4 @@
-﻿using Application.ErrorNamespace.ErrorCodesNamespace;
+using Application.ErrorNamespace.ErrorCodesNamespace;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.UnitOfWork;
 using Application.UseCases.SpendingGoalsUseCases.DeleteSpendingGoal;
@@ -34,7 +34,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.DeleteS
             A.CallTo(() => _repository.FindAsync(_goalId, A<CancellationToken>._))
                 .Returns(Task.FromResult<SpendingGoal?>(null));
 
-            var result = await _sut.Execute(_goalId, _userId, CancellationToken.None);
+            var result = await _sut.Execute(_goalId, _userId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _unitOfWork.SaveChangesAsync(A<CancellationToken>._)).MustNotHaveHappened();
@@ -51,7 +51,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.DeleteS
             A.CallTo(() => _repository.FindAsync(_goalId, A<CancellationToken>._))
                 .Returns(Task.FromResult<SpendingGoal?>(goal));
 
-            var result = await _sut.Execute(_goalId, _userId, CancellationToken.None);
+            var result = await _sut.Execute(_goalId, _userId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(SpendingGoalsErrorCodes.SPENDING_GOAL_NOT_FOUND, result.Error!.Code);
@@ -69,7 +69,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.DeleteS
             A.CallTo(() => _repository.FindAsync(_goalId, A<CancellationToken>._))
                 .Returns(Task.FromResult<SpendingGoal?>(goal));
 
-            var result = await _sut.Execute(_goalId, _userId, CancellationToken.None);
+            var result = await _sut.Execute(_goalId, _userId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _repository.Remove(goal)).MustHaveHappenedOnceExactly();
@@ -87,7 +87,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.DeleteS
             A.CallTo(() => _repository.FindAsync(_goalId, A<CancellationToken>._))
                 .Returns(Task.FromResult<SpendingGoal?>(goal));
 
-            var result = await _sut.Execute(_goalId, _userId, CancellationToken.None);
+            var result = await _sut.Execute(_goalId, _userId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _repository.Remove(goal)).MustHaveHappenedOnceExactly();

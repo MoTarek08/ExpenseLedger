@@ -27,7 +27,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
         _client = _fixture.Factory.CreateClient();
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _fixture.ResetAsync();
         var fake = (FakeBackgroundJobsService)_fixture.Factory.Services
@@ -35,7 +35,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
         fake.ScheduledExpenseGenerationJobs.Clear();
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     [Fact]
     public async Task Create_Success_ShouldReturn201()
@@ -57,10 +57,10 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
                 FirstDueOn: Today))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<CreatedResourceId<Guid>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<CreatedResourceId<Guid>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.NotEqual(Guid.Empty, body.Id);
 
@@ -96,7 +96,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
                 FirstDueOn: Today))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -119,7 +119,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
                 FirstDueOn: Today))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
@@ -133,7 +133,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
                 Title: null, Amount: 100m, CategoryId: Guid.NewGuid(),
                 SubCategoryId: null, Cadence: CadenceInterval.Once, FirstDueOn: Today))
         };
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -153,7 +153,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
                 SubCategoryId: null, Cadence: CadenceInterval.Once, FirstDueOn: Today))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -173,7 +173,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
                 Title: "Updated title", Amount: null, FirstDue: null, Cadence: null))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -206,7 +206,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
                 Title: null, Amount: null, FirstDue: null, Cadence: CadenceInterval.Weekly))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -241,7 +241,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
                 Title: "hacked", Amount: null, FirstDue: null, Cadence: null))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -259,7 +259,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
                 Title: "test", Amount: null, FirstDue: null, Cadence: null))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
@@ -272,7 +272,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
             Content = JsonContent.Create(new UpdateScheduledExpenseRequestModel(
                 Title: "test", Amount: null, FirstDue: null, Cadence: null))
         };
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -291,7 +291,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
                 Title: null, Amount: null, FirstDue: null, Cadence: null))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -307,7 +307,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/ScheduledExpenses/{seId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -333,7 +333,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/ScheduledExpenses/{seId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -347,7 +347,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/ScheduledExpenses/{Guid.NewGuid()}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
@@ -355,7 +355,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
     [Fact]
     public async Task Delete_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.DeleteAsync($"/api/v1/ScheduledExpenses/{Guid.NewGuid()}");
+        var response = await _client.DeleteAsync($"/api/v1/ScheduledExpenses/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
@@ -373,10 +373,10 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/v1/ScheduledExpenses/{seId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<ScheduledExpenseDto>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<ScheduledExpenseDto>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Equal(seId, body.Id);
         Assert.Equal("My scheduled", body.Title);
@@ -393,7 +393,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/v1/ScheduledExpenses/{Guid.NewGuid()}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -401,7 +401,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
     [Fact]
     public async Task GetById_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.GetAsync($"/api/v1/ScheduledExpenses/{Guid.NewGuid()}");
+        var response = await _client.GetAsync($"/api/v1/ScheduledExpenses/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
@@ -416,10 +416,10 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/ScheduledExpenses/search");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<ScheduledExpenseDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<ScheduledExpenseDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Contains(body, e => e.Id == id1);
         Assert.Contains(body, e => e.Id == id2);
@@ -437,10 +437,10 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/ScheduledExpenses/search?ActiveOnly=true");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<ScheduledExpenseDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<ScheduledExpenseDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Contains(body, e => e.Id == activeId);
         Assert.DoesNotContain(body, e => e.Id == cancelledId);
@@ -449,7 +449,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
     [Fact]
     public async Task Search_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.GetAsync("/api/v1/ScheduledExpenses/search");
+        var response = await _client.GetAsync("/api/v1/ScheduledExpenses/search", TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
@@ -462,7 +462,7 @@ public class ScheduledExpensesControllerTests : IClassFixture<IntegrationTestFix
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/ScheduledExpenses/search?SortBy=InvalidColumn");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }

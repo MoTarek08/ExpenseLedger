@@ -32,7 +32,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.GetExpenseBy
             A.CallTo(() => _expensesRepository.FindExpenseDtoByIdAsync(ExpenseId, UserId, A<CancellationToken>._))
                 .Returns(dto);
 
-            var result = await _sut.Execute(UserId, ExpenseId, CancellationToken.None);
+            var result = await _sut.Execute(UserId, ExpenseId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -45,7 +45,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.GetExpenseBy
             A.CallTo(() => _expensesRepository.FindExpenseDtoByIdAsync(ExpenseId, UserId, A<CancellationToken>._))
                 .Returns((ExpenseDto?)null);
 
-            var result = await _sut.Execute(UserId, ExpenseId, CancellationToken.None);
+            var result = await _sut.Execute(UserId, ExpenseId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.EXPENSE_NOT_FOUND, result.Error!.Code);

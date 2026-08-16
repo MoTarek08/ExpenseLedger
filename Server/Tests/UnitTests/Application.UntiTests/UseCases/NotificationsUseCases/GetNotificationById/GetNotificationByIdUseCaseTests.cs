@@ -35,7 +35,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.GetNoti
             A.CallTo(() => _notificationsRepository.FindVisibleAsync(NotificationId, A<CancellationToken>._))
                 .Returns(notification);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -48,7 +48,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.GetNoti
             A.CallTo(() => _notificationsRepository.FindVisibleAsync(NotificationId, A<CancellationToken>._))
                 .Returns((Notification?)null);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(NotificationsErrorCodes.NOTIFICATION_NOT_FOUND, result.Error!.Code);
@@ -62,7 +62,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.GetNoti
             A.CallTo(() => _notificationsRepository.FindVisibleAsync(NotificationId, A<CancellationToken>._))
                 .Returns(notification);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(NotificationsErrorCodes.NOTIFICATION_NOT_FOUND, result.Error!.Code);

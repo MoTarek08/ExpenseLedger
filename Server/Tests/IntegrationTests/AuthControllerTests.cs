@@ -1,13 +1,12 @@
-﻿using System.Net;
-using System.Net.Http.Json;
-using Application.ErrorNamespace.ErrorCodesNamespace;
-using Application.UseCases.AuthUseCases.Login.Models;
+﻿using Application.UseCases.AuthUseCases.Login.Models;
 using Application.UseCases.AuthUseCases.Register.Models;
 using Domain.Entities.DomainEnums;
 using Host.Models;
 using IntegrationTests.CustomWebApplicationFactoryNamespace;
 using IntegrationTests.TestHelpers;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace IntegrationTests
 {
@@ -22,8 +21,8 @@ namespace IntegrationTests
             _client = _fixture.Factory.CreateClient();
         }
 
-        public async Task InitializeAsync() => await _fixture.ResetAsync();
-        public Task DisposeAsync() => Task.CompletedTask;
+        public async ValueTask InitializeAsync() => await _fixture.ResetAsync();
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
         [Fact]
         public async Task Register_Success_ShouldReturn201AndCreateUser()
@@ -31,10 +30,10 @@ namespace IntegrationTests
             var email = $"test-{Guid.NewGuid()}@example.com";
             var request = new RegisterRequestModel(email, "Test User", "Password123!", "Password123!");
 
-            var response = await _client.PostAsync("/api/v1/auth/register", JsonHelper.Serialize(request));
+            var response = await _client.PostAsync("/api/v1/auth/register", JsonHelper.Serialize(request), TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-            var body = await response.Content.ReadFromJsonAsync<CreatedResourceId<Guid>>(JsonHelper.Options);
+            var body = await response.Content.ReadFromJsonAsync<CreatedResourceId<Guid>>(JsonHelper.Options, TestContext.Current.CancellationToken);
             Assert.NotEqual(Guid.Empty, body!.Id);
 
             await DatabaseAssertions.Verify(_fixture, async db =>
@@ -59,10 +58,10 @@ namespace IntegrationTests
 
             var request = new RegisterRequestModel(email, "Another", "OtherPass1!", "OtherPass1!");
 
-            var response = await _client.PostAsync("/api/v1/auth/register", JsonHelper.Serialize(request));
+            var response = await _client.PostAsync("/api/v1/auth/register", JsonHelper.Serialize(request), TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
-            var errorBody = await response.Content.ReadAsStringAsync();
+            var errorBody = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
             await DatabaseAssertions.Verify(_fixture, async db =>
             {
@@ -76,7 +75,7 @@ namespace IntegrationTests
         {
             var request = new RegisterRequestModel("invalid", "", "weak", "mismatch");
 
-            var response = await _client.PostAsync("/api/v1/auth/register", JsonHelper.Serialize(request));
+            var response = await _client.PostAsync("/api/v1/auth/register", JsonHelper.Serialize(request), TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -96,10 +95,10 @@ namespace IntegrationTests
 
             var request = new LoginRequestModel(auth.Email, "Password123!");
 
-            var response = await _client.PostAsync("/api/v1/auth/login", JsonHelper.Serialize(request));
+            var response = await _client.PostAsync("/api/v1/auth/login", JsonHelper.Serialize(request), TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var body = await response.Content.ReadFromJsonAsync<GeneratedAccessToken>(JsonHelper.Options);
+            var body = await response.Content.ReadFromJsonAsync<GeneratedAccessToken>(JsonHelper.Options, TestContext.Current.CancellationToken);
             Assert.NotNull(body!.AccessToken);
             Assert.NotEmpty(body.AccessToken);
 
@@ -131,11 +130,11 @@ namespace IntegrationTests
 
             var request = new LoginRequestModel(auth.Email, "WrongPassword1!");
 
-            var response = await _client.PostAsync("/api/v1/auth/login", JsonHelper.Serialize(request));
+            var response = await _client.PostAsync("/api/v1/auth/login", JsonHelper.Serialize(request), TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            var errorBody = await response.Content.ReadAsStringAsync();
-            
+            var errorBody = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
             await DatabaseAssertions.Verify(_fixture, async db =>
             {
                 Assert.Empty(await db.RefreshTokens.ToListAsync());
@@ -147,10 +146,10 @@ namespace IntegrationTests
         {
             var request = new LoginRequestModel("nonexistent@example.com", "Password123!");
 
-            var response = await _client.PostAsync("/api/v1/auth/login", JsonHelper.Serialize(request));
+            var response = await _client.PostAsync("/api/v1/auth/login", JsonHelper.Serialize(request), TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            var errorBody = await response.Content.ReadAsStringAsync();
+            var errorBody = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
             await DatabaseAssertions.Verify(_fixture, async db =>
             {
@@ -171,10 +170,10 @@ namespace IntegrationTests
             var response = await _client.SendAsync(
                 HttpRequestFactory.Post("/api/v1/auth/refresh")
                     .WithCookie("refreshToken", oldRefreshTokenValue)
-                    .WithBearerToken(auth.AccessToken!));
+                    .WithBearerToken(auth.AccessToken!), TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var body = await response.Content.ReadFromJsonAsync<GeneratedAccessToken>(JsonHelper.Options);
+            var body = await response.Content.ReadFromJsonAsync<GeneratedAccessToken>(JsonHelper.Options, TestContext.Current.CancellationToken);
             Assert.NotNull(body!.AccessToken);
             Assert.NotEmpty(body.AccessToken);
 
@@ -198,10 +197,10 @@ namespace IntegrationTests
         {
             var response = await _client.SendAsync(
                 HttpRequestFactory.Post("/api/v1/auth/refresh")
-                    .WithBearerToken("some-token"));
+                    .WithBearerToken("some-token"), TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            var errorBody = await response.Content.ReadAsStringAsync();
+            var errorBody = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         }
 
         [Fact]
@@ -209,7 +208,7 @@ namespace IntegrationTests
         {
             var response = await _client.SendAsync(
                 HttpRequestFactory.Post("/api/v1/auth/refresh")
-                    .WithCookie("refreshToken", "some-token"));
+                    .WithCookie("refreshToken", "some-token"), TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
@@ -224,7 +223,7 @@ namespace IntegrationTests
             var response = await _client.SendAsync(
                 HttpRequestFactory.Post("/api/v1/auth/refresh")
                     .WithCookie("refreshToken", auth.RefreshTokenValue!)
-                    .WithBearerToken(auth.AccessToken!));
+                    .WithBearerToken(auth.AccessToken!), TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 
@@ -248,7 +247,7 @@ namespace IntegrationTests
             var response = await _client.SendAsync(
                 HttpRequestFactory.Post("/api/v1/auth/refresh")
                     .WithCookie("refreshToken", authA.RefreshTokenValue!)
-                    .WithBearerToken(authB.AccessToken!));
+                    .WithBearerToken(authB.AccessToken!), TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 
@@ -269,7 +268,7 @@ namespace IntegrationTests
             var response = await _client.SendAsync(
                 HttpRequestFactory.Post("/api/v1/auth/logout")
                     .WithCookie("refreshToken", auth.RefreshTokenValue!)
-                    .WithBearerToken(auth.AccessToken!));
+                    .WithBearerToken(auth.AccessToken!), TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -283,7 +282,7 @@ namespace IntegrationTests
         [Fact]
         public async Task Logout_Unauthenticated_ShouldReturn401()
         {
-            var response = await _client.PostAsync("/api/v1/auth/logout", null);
+            var response = await _client.PostAsync("/api/v1/auth/logout", null, TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
@@ -298,7 +297,7 @@ namespace IntegrationTests
             var response = await _client.SendAsync(
                 HttpRequestFactory.Post("/api/v1/auth/logout")
                     .WithCookie("refreshToken", auth.RefreshTokenValue!)
-                    .WithBearerToken(auth.AccessToken!));
+                    .WithBearerToken(auth.AccessToken!), TestContext.Current.CancellationToken);
 
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }

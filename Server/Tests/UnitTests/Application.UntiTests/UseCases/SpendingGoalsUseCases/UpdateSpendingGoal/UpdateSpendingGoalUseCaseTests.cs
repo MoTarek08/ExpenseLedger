@@ -57,7 +57,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.UpdateS
             A.CallTo(() => _goalsRepository.FindAsync(_goalId, A<CancellationToken>._))
                 .Returns((SpendingGoal?)null);
 
-            var result = await _sut.Execute(_goalId, _userId, request, CancellationToken.None);
+            var result = await _sut.Execute(_goalId, _userId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(SpendingGoalsErrorCodes.SPENDING_GOAL_NOT_FOUND, result.Error!.Code);
@@ -73,7 +73,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.UpdateS
             A.CallTo(() => _goalsRepository.FindAsync(_goalId, A<CancellationToken>._))
                 .Returns(goal);
 
-            var result = await _sut.Execute(_goalId, _userId, request, CancellationToken.None);
+            var result = await _sut.Execute(_goalId, _userId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(SpendingGoalsErrorCodes.SPENDING_GOAL_NOT_FOUND, result.Error!.Code);
@@ -93,7 +93,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.UpdateS
             A.CallTo(() => _goalsRepository.FindAsync(_goalId, A<CancellationToken>._))
                 .Returns(pastGoal);
 
-            var result = await _sut.Execute(_goalId, _userId, request, CancellationToken.None);
+            var result = await _sut.Execute(_goalId, _userId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(SpendingGoalsErrorCodes.SPENDING_GOAL_COMPLETED, result.Error!.Code);
@@ -109,7 +109,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.UpdateS
             A.CallTo(() => _goalsRepository.FindAsync(_goalId, A<CancellationToken>._))
                 .Returns(goal);
 
-            var result = await _sut.Execute(_goalId, _userId, request, CancellationToken.None);
+            var result = await _sut.Execute(_goalId, _userId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal("New description", goal.Description);
@@ -133,7 +133,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.UpdateS
             A.CallTo(() => _notificationsRepository.ExistsByDedupKeyAsync(_userId, A<string>._, A<CancellationToken>._))
                 .Returns(false);
 
-            var result = await _sut.Execute(_goalId, _userId, request, CancellationToken.None);
+            var result = await _sut.Execute(_goalId, _userId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Single(result.Data!.Notifications);
@@ -155,7 +155,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.UpdateS
             A.CallTo(() => _notificationsRepository.ExistsByDedupKeyAsync(_userId, A<string>._, A<CancellationToken>._))
                 .Returns(true);
 
-            var result = await _sut.Execute(_goalId, _userId, request, CancellationToken.None);
+            var result = await _sut.Execute(_goalId, _userId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Empty(result.Data!.Notifications);
@@ -181,7 +181,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.UpdateS
             A.CallTo(() => _goalsRepository.GetGoalWithSpentAsync(_goalId, _userId, A<CancellationToken>._))
                 .Returns(new SpendingGoalWithSpent(goal, 50m));
 
-            var result = await _sut.Execute(_goalId, _userId, request, CancellationToken.None);
+            var result = await _sut.Execute(_goalId, _userId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal("Updated description", goal.Description);

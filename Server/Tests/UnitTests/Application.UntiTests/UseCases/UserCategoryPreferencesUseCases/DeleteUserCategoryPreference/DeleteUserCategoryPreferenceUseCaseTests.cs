@@ -32,7 +32,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
             A.CallTo(() => _repository.FindAsync(UserId, CategoryId, A<CancellationToken>._))
                 .Returns((UserCategoryPreference?)null);
 
-            var result = await _sut.Execute(UserId, CategoryId, default);
+            var result = await _sut.Execute(UserId, CategoryId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _repository.Remove(A<UserCategoryPreference>._)).MustNotHaveHappened();
@@ -46,7 +46,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
             A.CallTo(() => _repository.FindAsync(UserId, CategoryId, A<CancellationToken>._))
                 .Returns(preference);
 
-            var result = await _sut.Execute(UserId, CategoryId, default);
+            var result = await _sut.Execute(UserId, CategoryId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _repository.Remove(preference)).MustHaveHappenedOnceExactly();

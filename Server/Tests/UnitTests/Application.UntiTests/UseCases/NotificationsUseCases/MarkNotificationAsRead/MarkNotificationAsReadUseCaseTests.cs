@@ -43,7 +43,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.MarkNot
             A.CallTo(() => _dateTimeProvider.Now)
                 .Returns(now);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(now, notification.ReadAt);
@@ -60,7 +60,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.MarkNot
             A.CallTo(() => _notificationsRepository.FindVisibleAsync(NotificationId, A<CancellationToken>._))
                 .Returns(notification);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(now.AddHours(-1), notification.ReadAt);
@@ -73,7 +73,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.MarkNot
             A.CallTo(() => _notificationsRepository.FindVisibleAsync(NotificationId, A<CancellationToken>._))
                 .Returns((Notification?)null);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(NotificationsErrorCodes.NOTIFICATION_NOT_FOUND, result.Error!.Code);
@@ -87,7 +87,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.MarkNot
             A.CallTo(() => _notificationsRepository.FindVisibleAsync(NotificationId, A<CancellationToken>._))
                 .Returns(notification);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(NotificationsErrorCodes.NOTIFICATION_NOT_FOUND, result.Error!.Code);

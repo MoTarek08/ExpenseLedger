@@ -18,8 +18,8 @@ public class CategoriesControllerTests : IClassFixture<IntegrationTestFixture>, 
         _client = _fixture.Factory.CreateClient();
     }
 
-    public async Task InitializeAsync() => await _fixture.ResetAsync();
-    public Task DisposeAsync() => Task.CompletedTask;
+    public async ValueTask InitializeAsync() => await _fixture.ResetAsync();
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     [Fact]
     public async Task GetAll_AsAdmin_ShouldReturnAllCategories()
@@ -31,10 +31,10 @@ public class CategoriesControllerTests : IClassFixture<IntegrationTestFixture>, 
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/categories");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", admin.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<CategoryDetails>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<CategoryDetails>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.NotEmpty(body);
     }
@@ -48,7 +48,7 @@ public class CategoriesControllerTests : IClassFixture<IntegrationTestFixture>, 
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/categories");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
@@ -63,10 +63,10 @@ public class CategoriesControllerTests : IClassFixture<IntegrationTestFixture>, 
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/categories/FOOD");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", admin.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<CategoryDetails>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<CategoryDetails>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Equal("FOOD", body.Code);
         Assert.NotEmpty(body.SubCategories);
@@ -82,7 +82,7 @@ public class CategoriesControllerTests : IClassFixture<IntegrationTestFixture>, 
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/categories/INVALID");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", admin.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }

@@ -43,7 +43,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotesUseCases.DeleteNote
             A.CallTo(() => _notesRepository.FindIncludingExpenseAsync(NoteId, A<CancellationToken>._))
                 .Returns((Note?)null);
 
-            var result = await _sut.Execute(UserId, NoteId, default);
+            var result = await _sut.Execute(UserId, NoteId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _notesRepository.Remove(A<Note>._)).MustNotHaveHappened();
@@ -57,7 +57,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotesUseCases.DeleteNote
             A.CallTo(() => _notesRepository.FindIncludingExpenseAsync(NoteId, A<CancellationToken>._))
                 .Returns(note);
 
-            var result = await _sut.Execute(UserId, NoteId, default);
+            var result = await _sut.Execute(UserId, NoteId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(NotesErrorCodes.NOTE_NOT_FOUND, result.Error!.Code);
@@ -72,7 +72,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotesUseCases.DeleteNote
             A.CallTo(() => _notesRepository.FindIncludingExpenseAsync(NoteId, A<CancellationToken>._))
                 .Returns(note);
 
-            var result = await _sut.Execute(UserId, NoteId, default);
+            var result = await _sut.Execute(UserId, NoteId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _notesRepository.Remove(note)).MustHaveHappenedOnceExactly();

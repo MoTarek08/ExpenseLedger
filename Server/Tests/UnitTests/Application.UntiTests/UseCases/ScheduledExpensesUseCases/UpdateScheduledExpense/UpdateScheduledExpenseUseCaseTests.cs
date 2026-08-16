@@ -46,7 +46,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Upd
             A.CallTo(() => _repository.FindAsync(ScheduledExpenseId, A<CancellationToken>._))
                 .Returns((ScheduledExpense?)null);
 
-            var result = await _sut.Execute(ScheduledExpenseId, UserId, new UpdateScheduledExpenseRequestModel(Title: "Updated", null, null, null), default);
+            var result = await _sut.Execute(ScheduledExpenseId, UserId, new UpdateScheduledExpenseRequestModel(Title: "Updated", null, null, null), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.SCHEDULED_EXPENSE_NOT_FOUND, result.Error!.Code);
@@ -59,7 +59,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Upd
             A.CallTo(() => _repository.FindAsync(ScheduledExpenseId, A<CancellationToken>._))
                 .Returns(expense);
 
-            var result = await _sut.Execute(ScheduledExpenseId, UserId, new UpdateScheduledExpenseRequestModel(Title: "Updated", null, null, null), default);
+            var result = await _sut.Execute(ScheduledExpenseId, UserId, new UpdateScheduledExpenseRequestModel(Title: "Updated", null, null, null), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.SCHEDULED_EXPENSE_NOT_FOUND, result.Error!.Code);
@@ -73,7 +73,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Upd
             A.CallTo(() => _repository.FindAsync(ScheduledExpenseId, A<CancellationToken>._))
                 .Returns(expense);
 
-            var result = await _sut.Execute(ScheduledExpenseId, UserId, new UpdateScheduledExpenseRequestModel(Title: "Updated", null, null, null), default);
+            var result = await _sut.Execute(ScheduledExpenseId, UserId, new UpdateScheduledExpenseRequestModel(Title: "Updated", null, null, null), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.SCHEDULED_EXPENSE_NOT_ACTIVE, result.Error!.Code);
@@ -88,7 +88,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Upd
             A.CallTo(() => _repository.FindAsync(ScheduledExpenseId, A<CancellationToken>._))
                 .Returns(expense);
 
-            var result = await _sut.Execute(ScheduledExpenseId, UserId, new UpdateScheduledExpenseRequestModel(null, null, new DateOnly(2026, 9, 1), null), default);
+            var result = await _sut.Execute(ScheduledExpenseId, UserId, new UpdateScheduledExpenseRequestModel(null, null, new DateOnly(2026, 9, 1), null), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.SCHEDULED_EXPENSE_PROCESSED_BEFORE_AND_CANNOT_CHANGE_FIRST_DUE, result.Error!.Code);
@@ -103,7 +103,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Upd
             A.CallTo(() => _repository.FindAsync(ScheduledExpenseId, A<CancellationToken>._))
                 .Returns(expense);
 
-            var result = await _sut.Execute(ScheduledExpenseId, UserId, new UpdateScheduledExpenseRequestModel(Title: "Updated Title", null, null, null), default);
+            var result = await _sut.Execute(ScheduledExpenseId, UserId, new UpdateScheduledExpenseRequestModel(Title: "Updated Title", null, null, null), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(originalNextDueOn, expense.NextDueOn);
@@ -120,7 +120,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Upd
             A.CallTo(() => _repository.FindAsync(ScheduledExpenseId, A<CancellationToken>._))
                 .Returns(expense);
 
-            var result = await _sut.Execute(ScheduledExpenseId, UserId, new UpdateScheduledExpenseRequestModel(null, null, null, CadenceInterval.Weekly), default);
+            var result = await _sut.Execute(ScheduledExpenseId, UserId, new UpdateScheduledExpenseRequestModel(null, null, null, CadenceInterval.Weekly), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(expense.NextDueOn);

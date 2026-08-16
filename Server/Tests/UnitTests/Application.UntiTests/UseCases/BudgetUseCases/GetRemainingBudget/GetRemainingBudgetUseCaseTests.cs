@@ -53,7 +53,7 @@ namespace UnitTests.Application.UntiTests.UseCases.BudgetUseCases.GetRemainingBu
             A.CallTo(() => _budgetQueries.GetTotalSpentAsync(_userId, A<DateOnly>._, A<DateOnly>._, A<CancellationToken>._))
                 .Returns(spent);
 
-            var result = await _sut.Execute(_userId, default);
+            var result = await _sut.Execute(_userId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(expected, result.Data);
@@ -67,7 +67,7 @@ namespace UnitTests.Application.UntiTests.UseCases.BudgetUseCases.GetRemainingBu
             A.CallTo(() => _budgetQueries.GetTotalSpentAsync(_userId, A<DateOnly>._, A<DateOnly>._, A<CancellationToken>._))
                 .Returns(0m);
 
-            var result = await _sut.Execute(_userId, default);
+            var result = await _sut.Execute(_userId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(_profile.MonthlyNetIncome, result.Data);
@@ -83,7 +83,7 @@ namespace UnitTests.Application.UntiTests.UseCases.BudgetUseCases.GetRemainingBu
             A.CallTo(() => _budgetQueries.GetTotalSpentAsync(_userId, A<DateOnly>._, A<DateOnly>._, A<CancellationToken>._))
                 .Returns(spent);
 
-            var result = await _sut.Execute(_userId, default);
+            var result = await _sut.Execute(_userId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.True(result.Data < 0);

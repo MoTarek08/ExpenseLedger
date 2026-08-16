@@ -42,7 +42,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.Logout
             A.CallTo(() => _refreshTokensRepository.GetByTokenAsync(RefreshTokenFromCookie, A<CancellationToken>._))
                 .Returns((RefreshToken?)null);
 
-            var result = await _sut.Execute(userId, RefreshTokenFromCookie, default);
+            var result = await _sut.Execute(userId, RefreshTokenFromCookie, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(AuthErrorCodes.AUTH_REFRESH_TOKEN_DOES_NOT_EXIST, result.Error!.Code);
@@ -68,7 +68,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.Logout
             A.CallTo(() => _dateProvider.Now)
                 .Returns(now);
 
-            var result = await _sut.Execute(userId, RefreshTokenFromCookie, default);
+            var result = await _sut.Execute(userId, RefreshTokenFromCookie, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
 
@@ -92,7 +92,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.Logout
             A.CallTo(() => _dateProvider.Now)
                 .Returns(now);
 
-            var result = await _sut.Execute(userId, RefreshTokenFromCookie, default);
+            var result = await _sut.Execute(userId, RefreshTokenFromCookie, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
 
@@ -117,7 +117,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.Logout
             A.CallTo(() => _dateProvider.Now)
                 .Returns(now);
 
-            var result = await _sut.Execute(accessTokenUserId, RefreshTokenFromCookie, default);
+            var result = await _sut.Execute(accessTokenUserId, RefreshTokenFromCookie, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
 
@@ -146,7 +146,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.Logout
             A.CallTo(() => _dateProvider.Now)
                 .Returns(now);
 
-            var result = await _sut.Execute(userId, RefreshTokenFromCookie, default);
+            var result = await _sut.Execute(userId, RefreshTokenFromCookie, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(now, refreshToken.RevokedAt);

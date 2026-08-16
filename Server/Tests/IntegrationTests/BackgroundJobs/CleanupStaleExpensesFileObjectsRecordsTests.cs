@@ -21,8 +21,8 @@ namespace IntegrationTests.BackgroundJobs
             _client = _fixture.Factory.CreateClient();
         }
 
-        public async Task InitializeAsync() => await _fixture.ResetAsync();
-        public Task DisposeAsync() => Task.CompletedTask;
+        public async ValueTask InitializeAsync() => await _fixture.ResetAsync();
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
         [Fact]
         public async Task Execute_WhenStaleFileObject_ShouldHardDelete()
@@ -69,7 +69,7 @@ namespace IntegrationTests.BackgroundJobs
             var now = DateTimeOffset.UtcNow;
 
             List<ExpenseFileObject> fileObjects = new(count);
-            for(int i=0; i<count; i += 1)
+            for (int i = 0; i < count; i += 1)
             {
                 fileObjects.Add(ExpenseFileObject.CreatePendingUpload(
                 userId,

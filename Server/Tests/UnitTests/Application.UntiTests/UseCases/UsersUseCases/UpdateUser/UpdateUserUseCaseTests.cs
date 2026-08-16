@@ -34,7 +34,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersUseCases.UpdateUser
             A.CallTo(() => _repository.FindAsync(_userId, A<CancellationToken>._))
                 .Returns(user);
 
-            var result = await _sut.Execute(_userId, new UpdateUserRequestModel("Updated Name"), default);
+            var result = await _sut.Execute(_userId, new UpdateUserRequestModel("Updated Name"), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal("Updated Name", user.DisplayName);
@@ -48,7 +48,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersUseCases.UpdateUser
             A.CallTo(() => _repository.FindAsync(_userId, A<CancellationToken>._))
                 .Returns((User?)null);
 
-            var result = await _sut.Execute(_userId, new UpdateUserRequestModel("Name"), default);
+            var result = await _sut.Execute(_userId, new UpdateUserRequestModel("Name"), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(UsersErrorCodes.AUTHORIZED_USER_NOT_FOUND, result.Error!.Code);
@@ -63,7 +63,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersUseCases.UpdateUser
             A.CallTo(() => _repository.FindAsync(_userId, A<CancellationToken>._))
                 .Returns(user);
 
-            var result = await _sut.Execute(_userId, new UpdateUserRequestModel(null), default);
+            var result = await _sut.Execute(_userId, new UpdateUserRequestModel(null), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal("Original", user.DisplayName);

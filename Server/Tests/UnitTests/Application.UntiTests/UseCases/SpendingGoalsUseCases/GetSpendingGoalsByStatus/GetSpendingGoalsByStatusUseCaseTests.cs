@@ -69,7 +69,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.GetSpen
                 .Returns(expected);
 
             var result = await _sut.Execute(_userId, SpendingGoalStatus.Succeeded,
-                new GetSpendingGoalsByStatusQueryParameters(null, null, null), CancellationToken.None);
+                new GetSpendingGoalsByStatusQueryParameters(null, null, null), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(expected, result.Data);
@@ -90,7 +90,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.GetSpen
                 .Returns(expected);
 
             var result = await _sut.Execute(_userId, SpendingGoalStatus.Failed,
-                new GetSpendingGoalsByStatusQueryParameters(null, null, null), CancellationToken.None);
+                new GetSpendingGoalsByStatusQueryParameters(null, null, null), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(expected, result.Data);
@@ -111,7 +111,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.GetSpen
                 .Returns(expected);
 
             var result = await _sut.Execute(_userId, SpendingGoalStatus.InProgress,
-                new GetSpendingGoalsByStatusQueryParameters(null, null, null), CancellationToken.None);
+                new GetSpendingGoalsByStatusQueryParameters(null, null, null), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(expected, result.Data);
@@ -132,7 +132,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.GetSpen
                 .Returns(expected);
 
             var result = await _sut.Execute(_userId, SpendingGoalStatus.Pending,
-                new GetSpendingGoalsByStatusQueryParameters(null, null, null), CancellationToken.None);
+                new GetSpendingGoalsByStatusQueryParameters(null, null, null), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(expected, result.Data);
@@ -156,7 +156,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.GetSpen
                 .Returns(MakeDtos(1));
 
             var queryParams = new GetSpendingGoalsByStatusQueryParameters(categoryId, null, null);
-            var result = await _sut.Execute(_userId, SpendingGoalStatus.InProgress, queryParams, CancellationToken.None);
+            var result = await _sut.Execute(_userId, SpendingGoalStatus.InProgress, queryParams, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Single(capturedQueries);

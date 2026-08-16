@@ -31,7 +31,7 @@ namespace UnitTests.Application.UntiTests.UseCases.CategoriesUseCases.GetAllCate
             A.CallTo(() => _categoriesRepository.GetAllWithSubCategoriesAsync(A<CancellationToken>._))
                 .Returns(categories);
 
-            var result = await _sut.Execute(default);
+            var result = await _sut.Execute(TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(2, result.Data!.Count);
@@ -43,7 +43,7 @@ namespace UnitTests.Application.UntiTests.UseCases.CategoriesUseCases.GetAllCate
             A.CallTo(() => _categoriesRepository.GetAllWithSubCategoriesAsync(A<CancellationToken>._))
                 .Returns(new List<CategoryDetails>());
 
-            var result = await _sut.Execute(default);
+            var result = await _sut.Execute(TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Empty(result.Data!);

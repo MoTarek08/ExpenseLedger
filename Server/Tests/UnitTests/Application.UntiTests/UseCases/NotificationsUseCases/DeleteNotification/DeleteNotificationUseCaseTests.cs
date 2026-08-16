@@ -40,7 +40,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.DeleteN
             A.CallTo(() => _dateTimeProvider.Now)
                 .Returns(now);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(now, notification.DeletedAt);
@@ -57,7 +57,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.DeleteN
             A.CallTo(() => _notificationsRepository.FindAsync(NotificationId, A<CancellationToken>._))
                 .Returns(notification);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(now.AddHours(-2), notification.DeletedAt);
@@ -70,7 +70,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.DeleteN
             A.CallTo(() => _notificationsRepository.FindAsync(NotificationId, A<CancellationToken>._))
                 .Returns((Notification?)null);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _unitOfWork.SaveChangesAsync(A<CancellationToken>._)).MustNotHaveHappened();
@@ -84,7 +84,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.DeleteN
             A.CallTo(() => _notificationsRepository.FindAsync(NotificationId, A<CancellationToken>._))
                 .Returns(notification);
 
-            var result = await _sut.Execute(UserId, NotificationId, default);
+            var result = await _sut.Execute(UserId, NotificationId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             A.CallTo(() => _unitOfWork.SaveChangesAsync(A<CancellationToken>._)).MustNotHaveHappened();

@@ -46,7 +46,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.CreateS
                     _userId, request.CategoryId, request.StartDate, request.EndDate, A<Guid>._, A<CancellationToken>._))
                 .Returns(true);
 
-            var result = await _sut.Execute(_userId, request, CancellationToken.None);
+            var result = await _sut.Execute(_userId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(SpendingGoalsErrorCodes.SPENDING_GOAL_ALREADY_EXISTS, result.Error!.Code);
@@ -63,7 +63,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.CreateS
                     _userId, request.CategoryId, request.StartDate, request.EndDate, A<Guid>._, A<CancellationToken>._))
                 .Returns(false);
 
-            var result = await _sut.Execute(_userId, request, CancellationToken.None);
+            var result = await _sut.Execute(_userId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _repository.Add(A<SpendingGoal>.That.Matches(g => g.Description == null)))
@@ -80,7 +80,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.CreateS
                     _userId, request.CategoryId, request.StartDate, request.EndDate, A<Guid>._, A<CancellationToken>._))
                 .Returns(false);
 
-            var result = await _sut.Execute(_userId, request, CancellationToken.None);
+            var result = await _sut.Execute(_userId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _repository.Add(A<SpendingGoal>.That.Matches(g => g.Description == "Valid description")))
@@ -97,7 +97,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.CreateS
                     _userId, request.CategoryId, request.StartDate, request.EndDate, A<Guid>._, A<CancellationToken>._))
                 .Returns(false);
 
-            var result = await _sut.Execute(_userId, request, CancellationToken.None);
+            var result = await _sut.Execute(_userId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _repository.Add(A<SpendingGoal>.That.Matches(g => g.MinimumTargetAmount == 500m && g.MaximumTargetAmount == 500m)))

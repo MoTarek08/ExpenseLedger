@@ -1,5 +1,6 @@
 ﻿using FakeItEasy;
 using Infrastructure.Database.AppDbContextNamespace;
+using Infrastructure.ObjectStorage.Clients;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Minio;
@@ -74,10 +75,13 @@ namespace IntegrationTests.CustomWebApplicationFactoryNamespace
                 }
             }
 
-            if(shouldResetHangfire)
+            if (shouldResetHangfire)
                 await _hangfireRespawner!.ResetAsync(hangfireConnection);
 
-            Fake.ClearRecordedCalls(Factory.FakeObjectStorageClient);
+            if (Factory.FakeObjectStorageClient is not null)
+            {
+                Fake.ClearRecordedCalls(Factory.FakeObjectStorageClient);
+            }
 
             var endpoint = $"{Minio.Hostname}:{Minio.GetMappedPublicPort(9000)}";
             var minioClient = new MinioClient()
@@ -102,6 +106,12 @@ namespace IntegrationTests.CustomWebApplicationFactoryNamespace
 
             await minioClient.MakeBucketAsync(
                 new MakeBucketArgs().WithBucket(bucketName));
+
+            // Ensure the fake object storage client is created/resolved so tests can configure expectations on it
+            using (var scope = Factory.CreateScope())
+            {
+                _ = scope.ServiceProvider.GetRequiredService<IObjectStorageClient>();
+            }
         }
 
         public async ValueTask DisposeAsync()

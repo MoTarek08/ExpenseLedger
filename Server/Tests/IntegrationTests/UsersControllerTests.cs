@@ -19,8 +19,8 @@ public class UsersControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
         _client = _fixture.Factory.CreateClient();
     }
 
-    public async Task InitializeAsync() => await _fixture.ResetAsync();
-    public Task DisposeAsync() => Task.CompletedTask;
+    public async ValueTask InitializeAsync() => await _fixture.ResetAsync();
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     [Fact]
     public async Task GetProfileWithFinancialProfile_Success_ShouldReturnProfileWithFinancialProfileDto()
@@ -36,10 +36,10 @@ public class UsersControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/users/profile");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<UserProfileDto>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<UserProfileDto>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Equal(auth.Email, body.Email);
         Assert.NotEqual(default, body.RegisteredAt);
@@ -49,7 +49,7 @@ public class UsersControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
     [Fact]
     public async Task GetProfile_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.GetAsync("/api/v1/users/profile");
+        var response = await _client.GetAsync("/api/v1/users/profile", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -67,7 +67,7 @@ public class UsersControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -87,7 +87,7 @@ public class UsersControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
         {
             Content = JsonHelper.Serialize(requestModel)
         };
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -105,7 +105,7 @@ public class UsersControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }

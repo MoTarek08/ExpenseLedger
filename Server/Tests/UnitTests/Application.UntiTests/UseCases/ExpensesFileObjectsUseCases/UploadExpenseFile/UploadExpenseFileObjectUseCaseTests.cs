@@ -51,7 +51,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.U
                 A<ObjectKey>._, A<DateTimeOffset>._, A<DateTimeOffset>._))
                 .Returns("https://storage.local/presigned-url");
 
-            var result = await _sut.Execute(UserId, request, CancellationToken.None);
+            var result = await _sut.Execute(UserId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);

@@ -53,7 +53,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.D
             A.CallTo(() => _expensesFileObjectsRepository.FindAsync(FileId, A<CancellationToken>._))
                 .Returns((ExpenseFileObject?)null);
 
-            var result = await _sut.Execute(UserId, FileId, CancellationToken.None);
+            var result = await _sut.Execute(UserId, FileId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _objectStorageService.DeleteAsync(A<string>._, A<CancellationToken>._)).MustNotHaveHappened();
@@ -77,7 +77,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.D
             A.CallTo(() => _expensesFileObjectsRepository.FindAsync(FileId, A<CancellationToken>._))
                 .Returns(file);
 
-            var result = await _sut.Execute(UserId, FileId, CancellationToken.None);
+            var result = await _sut.Execute(UserId, FileId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.EXPENSE_FILE_NOT_FOUND, result.Error!.Code);
@@ -94,7 +94,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.D
             A.CallTo(() => _expensesFileObjectsRepository.FindAsync(FileId, A<CancellationToken>._))
                 .Returns(file);
 
-            var result = await _sut.Execute(UserId, FileId, CancellationToken.None);
+            var result = await _sut.Execute(UserId, FileId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _objectStorageService.DeleteAsync(file.ObjectKey, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
@@ -112,7 +112,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.D
             A.CallTo(() => _objectStorageService.DeleteAsync(file.ObjectKey, A<CancellationToken>._))
                 .Throws<FileObjectAlreadyDeleted>();
 
-            var result = await _sut.Execute(UserId, FileId, CancellationToken.None);
+            var result = await _sut.Execute(UserId, FileId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _expensesFileObjectsRepository.Remove(file)).MustHaveHappenedOnceExactly();
@@ -129,7 +129,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.D
             A.CallTo(() => _expensesFileObjectsRepository.FindAsync(FileId, A<CancellationToken>._))
                 .Returns(file);
 
-            var result = await _sut.Execute(UserId, FileId, CancellationToken.None);
+            var result = await _sut.Execute(UserId, FileId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _objectStorageService.DeleteAsync(A<string>._, A<CancellationToken>._)).MustNotHaveHappened();

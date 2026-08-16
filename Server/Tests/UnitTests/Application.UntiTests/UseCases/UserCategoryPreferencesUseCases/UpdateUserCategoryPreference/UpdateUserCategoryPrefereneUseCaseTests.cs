@@ -47,7 +47,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
             var result = await _sut.Execute(
                 _userId,
                 new UpdateCategoryPreferenceRequestModel(_categoryId, CategoryPreferenceLevel.Essential),
-                default);
+                TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -67,7 +67,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
             var result = await _sut.Execute(
                 _userId,
                 new UpdateCategoryPreferenceRequestModel(_categoryId, CategoryPreferenceLevel.Essential),
-                default);
+                TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(CategoryPreferencesErrorCodes.CATEGORY_PREFERENCE_CATEGORY_NOT_FOUND, result.Error!.Code);
@@ -86,7 +86,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
             var result = await _sut.Execute(
                 _userId,
                 new UpdateCategoryPreferenceRequestModel(_categoryId, CategoryPreferenceLevel.Essential),
-                default);
+                TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(CategoryPreferencesErrorCodes.CATEGORY_PREFERENCE_NOT_FOUND, result.Error!.Code);
@@ -106,7 +106,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
             var result = await _sut.Execute(
                 _userId,
                 new UpdateCategoryPreferenceRequestModel(_categoryId, CategoryPreferenceLevel.Essential),
-                default);
+                TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _unitOfWork.SaveChangesAsync(A<CancellationToken>._))

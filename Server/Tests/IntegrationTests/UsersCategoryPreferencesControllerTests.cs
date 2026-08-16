@@ -27,8 +27,8 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
         _client = _fixture.Factory.CreateClient();
     }
 
-    public async Task InitializeAsync() => await _fixture.ResetAsync();
-    public Task DisposeAsync() => Task.CompletedTask;
+    public async ValueTask InitializeAsync() => await _fixture.ResetAsync();
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     [Fact]
     public async Task Create_Success_ShouldReturn201()
@@ -44,7 +44,7 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
@@ -71,7 +71,7 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
     }
@@ -89,7 +89,7 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -103,7 +103,7 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
         {
             Content = JsonHelper.Serialize(requestModel)
         };
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -123,10 +123,10 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<UpdateUserCategoryPrefereneResponseModel>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<UpdateUserCategoryPrefereneResponseModel>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Equal(auth.UserId, body.UserId);
         Assert.Equal(categoryId, body.CategoryId);
@@ -160,7 +160,7 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -176,10 +176,10 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/v1/UsersCategoryPreferences/{categoryId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<UserCategoryPreferenceDto>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<UserCategoryPreferenceDto>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Equal(CategoryPreferenceLevel.Neutral, body.PreferenceLevel);
     }
@@ -199,7 +199,7 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/v1/UsersCategoryPreferences/{categoryId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -220,10 +220,10 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/UsersCategoryPreferences/search");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<UserCategoryPreferenceDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<UserCategoryPreferenceDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Equal(2, body.Count);
     }
@@ -244,10 +244,10 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/UsersCategoryPreferences/search?PreferenceLevel=Important");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<UserCategoryPreferenceDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<UserCategoryPreferenceDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Single(body);
         Assert.Equal(CategoryPreferenceLevel.Important, body[0].PreferenceLevel);
@@ -256,7 +256,7 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
     [Fact]
     public async Task Search_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.GetAsync("/api/v1/UsersCategoryPreferences/search");
+        var response = await _client.GetAsync("/api/v1/UsersCategoryPreferences/search", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -273,7 +273,7 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/UsersCategoryPreferences/{categoryId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -301,7 +301,7 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/UsersCategoryPreferences/{categoryId2}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
@@ -317,7 +317,7 @@ public class UsersCategoryPreferencesControllerTests : IClassFixture<Integration
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/UsersCategoryPreferences/{categoryId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }

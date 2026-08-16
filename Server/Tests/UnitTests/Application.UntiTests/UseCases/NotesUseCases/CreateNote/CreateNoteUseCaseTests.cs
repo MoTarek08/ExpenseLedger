@@ -48,7 +48,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotesUseCases.CreateNote
             A.CallTo(() => _expensesRepository.FindAsync(request.ExpenseId, A<CancellationToken>._))
                 .Returns((Expense?)null);
 
-            var result = await _sut.Execute(UserId, request, default);
+            var result = await _sut.Execute(UserId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(NotesErrorCodes.NOTE_EXPENSE_NOT_FOUND, result.Error!.Code);
@@ -67,7 +67,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotesUseCases.CreateNote
             A.CallTo(() => _expensesRepository.FindAsync(request.ExpenseId, A<CancellationToken>._))
                 .Returns(expense);
 
-            var result = await _sut.Execute(UserId, request, default);
+            var result = await _sut.Execute(UserId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(NotesErrorCodes.NOTE_EXPENSE_NOT_FOUND, result.Error!.Code);
@@ -91,7 +91,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotesUseCases.CreateNote
             A.CallTo(() => _notesRepository.Add(A<Note>._))
                 .Invokes(call => capturedNote = call.GetArgument<Note>(0));
 
-            var result = await _sut.Execute(UserId, request, default);
+            var result = await _sut.Execute(UserId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotEqual(Guid.Empty, result.Data);

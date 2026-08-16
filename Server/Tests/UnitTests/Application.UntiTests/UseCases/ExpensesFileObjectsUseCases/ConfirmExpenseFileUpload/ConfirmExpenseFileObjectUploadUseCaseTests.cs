@@ -77,7 +77,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.C
             A.CallTo(() => _expensesRepository.FindIncludingFileObjectAsync(ExpenseId, A<CancellationToken>._))
                 .Returns((Expense?)null);
 
-            var result = await _sut.Execute(FileId, ExpenseId, UserId, CancellationToken.None);
+            var result = await _sut.Execute(FileId, ExpenseId, UserId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.EXPENSE_NOT_FOUND, result.Error!.Code);
@@ -98,7 +98,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.C
             A.CallTo(() => _expensesRepository.FindIncludingFileObjectAsync(ExpenseId, A<CancellationToken>._))
                 .Returns(expense);
 
-            var result = await _sut.Execute(FileId, ExpenseId, UserId, CancellationToken.None);
+            var result = await _sut.Execute(FileId, ExpenseId, UserId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.EXPENSE_NOT_FOUND, result.Error!.Code);
@@ -113,7 +113,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.C
             A.CallTo(() => _expensesRepository.FindIncludingFileObjectAsync(ExpenseId, A<CancellationToken>._))
                 .Returns(expense);
 
-            var result = await _sut.Execute(FileId, ExpenseId, UserId, CancellationToken.None);
+            var result = await _sut.Execute(FileId, ExpenseId, UserId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.EXPENSE_ALREADY_HAS_A_FILE, result.Error!.Code);
@@ -130,7 +130,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.C
             A.CallTo(() => _expensesFileObjectsRepository.FindAsync(FileId, A<CancellationToken>._))
                 .Returns((ExpenseFileObject?)null);
 
-            var result = await _sut.Execute(FileId, ExpenseId, UserId, CancellationToken.None);
+            var result = await _sut.Execute(FileId, ExpenseId, UserId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.EXPENSE_FILE_NOT_FOUND, result.Error!.Code);
@@ -156,7 +156,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.C
             A.CallTo(() => _expensesFileObjectsRepository.FindAsync(FileId, A<CancellationToken>._))
                 .Returns(fileObject);
 
-            var result = await _sut.Execute(FileId, ExpenseId, UserId, CancellationToken.None);
+            var result = await _sut.Execute(FileId, ExpenseId, UserId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.EXPENSE_FILE_NOT_FOUND, result.Error!.Code);
@@ -175,7 +175,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.C
             A.CallTo(() => _objectStorageService.GetFileInfoAsync(A<string>._, A<CancellationToken>._))
                 .Returns(new FileObjectInfo(false, null));
 
-            var result = await _sut.Execute(FileId, ExpenseId, UserId, CancellationToken.None);
+            var result = await _sut.Execute(FileId, ExpenseId, UserId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.EXPENSE_FILE_NOT_UPLOADED_YET, result.Error!.Code);
@@ -204,7 +204,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesFileObjectsUseCases.C
                 .Returns(new FileObjectInfo(true, 2048));
             A.CallTo(() => _dateTimeProvider.Now).ReturnsLazily(() => now);
 
-            var result = await _sut.Execute(FileId, ExpenseId, UserId, CancellationToken.None);
+            var result = await _sut.Execute(FileId, ExpenseId, UserId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(ExpenseId, fileObject.ExpenseId);

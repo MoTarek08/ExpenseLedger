@@ -31,7 +31,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
             A.CallTo(() => _repository.FindIncludingCategoryAsync(_userId, _categoryId, A<CancellationToken>._))
                 .Returns(Task.FromResult<UserCategoryPreference?>(null));
 
-            var result = await _sut.Execute(_userId, _categoryId, CancellationToken.None);
+            var result = await _sut.Execute(_userId, _categoryId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(CategoryPreferencesErrorCodes.CATEGORY_PREFERENCE_NOT_FOUND, result.Error!.Code);
@@ -51,7 +51,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
             A.CallTo(() => _repository.FindIncludingCategoryAsync(_userId, _categoryId, A<CancellationToken>._))
                 .Returns(Task.FromResult<UserCategoryPreference?>(preference));
 
-            var result = await _sut.Execute(_userId, _categoryId, CancellationToken.None);
+            var result = await _sut.Execute(_userId, _categoryId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal("FOOD", result.Data!.CategoryCode);

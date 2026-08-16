@@ -54,7 +54,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.Register
             A.CallTo(() => _usersRepository.FindByEmailAsync(A<string>._, A<CancellationToken>._))
                 .Returns(existingUser);
 
-            var result = await _sut.Execute(_request, default);
+            var result = await _sut.Execute(_request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(AuthErrorCodes.AUTH_EMAIL_ALREADY_EXISTS, result.Error!.Code);
@@ -79,7 +79,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.Register
             A.CallTo(() => _usersRepository.Add(A<User>._))
                 .Invokes(call => addedUser = call.GetArgument<User>(0));
 
-            var result = await _sut.Execute(_request, default);
+            var result = await _sut.Execute(_request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(addedUser);
@@ -111,7 +111,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.Register
             A.CallTo(() => _usersRepository.Add(A<User>._))
                 .Invokes(call => addedUser = call.GetArgument<User>(0));
 
-            await _sut.Execute(request, default);
+            await _sut.Execute(request, TestContext.Current.CancellationToken);
 
             Assert.NotNull(addedUser);
             A.CallTo(() => _usersRepository.FindByEmailAsync("test@test.com", A<CancellationToken>._))
@@ -139,7 +139,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.Register
             A.CallTo(() => _usersRepository.Add(A<User>._))
                 .Invokes(call => addedUser = call.GetArgument<User>(0));
 
-            await _sut.Execute(request, default);
+            await _sut.Execute(request, TestContext.Current.CancellationToken);
 
             Assert.NotNull(addedUser);
             Assert.Equal("My Name", addedUser!.DisplayName);

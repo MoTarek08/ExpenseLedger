@@ -1,5 +1,4 @@
 using Application.Interfaces.BackgroundJobs;
-using Application.Interfaces.ObjectStorage.Models;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.UnitOfWork;
 using Application.UseCases.ExpensesUseCases.CreateExpense.Models;
@@ -10,18 +9,14 @@ using Application.UseCases.NotificationsUseCases.Models;
 using Domain.Entities.DomainEnums;
 using Domain.Entities.FileObjectNamespace;
 using FakeItEasy;
-using Infrastructure.Database.AppDbContextNamespace;
 using IntegrationTests.BackgroundJobs;
 using IntegrationTests.CustomWebApplicationFactoryNamespace;
 using IntegrationTests.TestHelpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Minio;
-using Minio.DataModel.Args;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Threading;
 
 
 namespace IntegrationTests;
@@ -37,7 +32,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
         _client = _fixture.Factory.CreateClient();
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _fixture.ResetAsync();
         var fake = (FakeBackgroundJobsService)_fixture.Factory.Services
@@ -46,7 +41,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
         fake.ExpensesIdsThatTriggeredCheckGoalAchievement.Clear();
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     [Fact]
     public async Task Search_NoFilter_ShouldReturnAll()
@@ -61,10 +56,10 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/Expenses/search");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<ExpenseDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<ExpenseDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Equal(2, body.Count);
     }
@@ -85,10 +80,10 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
         var request = new HttpRequestMessage(HttpMethod.Get,
             $"/api/v1/Expenses/search?CategoryIds={catId1}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<ExpenseDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<ExpenseDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Single(body);
     }
@@ -96,7 +91,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
     [Fact]
     public async Task Search_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.GetAsync("/api/v1/Expenses/search");
+        var response = await _client.GetAsync("/api/v1/Expenses/search", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -115,10 +110,10 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
         var request = new HttpRequestMessage(HttpMethod.Get,
             $"/api/v1/Expenses?Day={today:yyyy-MM-dd}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<ExpenseDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<ExpenseDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Single(body);
     }
@@ -135,10 +130,10 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
         var request = new HttpRequestMessage(HttpMethod.Get,
             $"/api/v1/Expenses?Day={today:yyyy-MM-dd}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<ExpenseDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<ExpenseDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Empty(body);
     }
@@ -156,10 +151,10 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
         var request = new HttpRequestMessage(HttpMethod.Get,
             $"/api/v1/Expenses/{expenseId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<ExpenseDto>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<ExpenseDto>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Equal(expenseId, body.Id);
         Assert.Equal(auth.UserId, body.UserId);
@@ -182,7 +177,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
         var request = new HttpRequestMessage(HttpMethod.Get,
             $"/api/v1/Expenses/{expenseId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -204,10 +199,10 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<CreateExpenseResponseModel>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<CreateExpenseResponseModel>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
 
         await DatabaseAssertions.Verify(_fixture, async db =>
@@ -236,10 +231,10 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<CreateExpenseResponseModel>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<CreateExpenseResponseModel>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
 
         var fake = (FakeBackgroundJobsService)_fixture.Factory.Services
@@ -262,7 +257,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -279,7 +274,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
         {
             Content = JsonHelper.Serialize(requestModel)
         };
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -303,7 +298,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -332,10 +327,10 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.NotEmpty(body);
     }
@@ -360,7 +355,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -394,7 +389,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -421,7 +416,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -459,7 +454,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -489,7 +484,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -517,7 +512,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -535,7 +530,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
         var request = new HttpRequestMessage(HttpMethod.Delete,
             $"/api/v1/Expenses/{expenseId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -564,12 +559,12 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
         var request = new HttpRequestMessage(HttpMethod.Delete,
             $"/api/v1/Expenses/{expenseId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-[Fact]
+    [Fact]
     public async Task Delete_ExpenseWithLinkedFile_ShouldDeleteObjectFromStorageImmediately()
     {
         var auth = await AuthenticationScenarioBuilder.Create(_fixture)
@@ -597,7 +592,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
             file.MarkAsUploaded(now);
             file.LinkToExpense(expenseId);
             repo.Add(file);
-            await unitOfWork.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         A.CallTo(() => _fixture.Factory.FakeObjectStorageClient
@@ -607,7 +602,7 @@ public class ExpensesControllerTests : IClassFixture<IntegrationTestFixture>, IA
         var request = new HttpRequestMessage(HttpMethod.Delete,
             $"/api/v1/Expenses/{expenseId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         A.CallTo(() => _fixture.Factory.FakeObjectStorageClient

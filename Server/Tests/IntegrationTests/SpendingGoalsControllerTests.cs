@@ -28,8 +28,8 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
         _client = _fixture.Factory.CreateClient();
     }
 
-    public async Task InitializeAsync() => await _fixture.ResetAsync();
-    public Task DisposeAsync() => Task.CompletedTask;
+    public async ValueTask InitializeAsync() => await _fixture.ResetAsync();
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     [Fact]
     public async Task Create_Success_ShouldReturn201()
@@ -49,10 +49,10 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
                 EndDate: Today.AddDays(60)))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<CreatedResourceId<Guid>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<CreatedResourceId<Guid>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.NotEqual(Guid.Empty, body.Id);
 
@@ -85,7 +85,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
                 EndDate: Today.AddDays(30)))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
     }
@@ -107,7 +107,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
                 EndDate: Today.AddDays(30)))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
@@ -124,7 +124,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
                 StartDate: Today,
                 EndDate: Today.AddDays(30)))
         };
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -147,7 +147,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
                 EndDate: Today.AddDays(30)))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -171,7 +171,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
                 EndDate: null))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
@@ -205,10 +205,10 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
                 EndDate: null))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var notifications = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options);
+        var notifications = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(notifications);
         Assert.Single(notifications);
         Assert.Equal(NotificationReason.GoalAchieved, notifications[0].Reason);
@@ -238,7 +238,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
                 EndDate: null))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -267,7 +267,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
                 EndDate: null))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -289,7 +289,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
                 EndDate: null))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
@@ -306,7 +306,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
                 StartDate: null,
                 EndDate: null))
         };
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -329,7 +329,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
                 EndDate: null))
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -342,15 +342,15 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
             .BuildAsync();
         var goalId = await SpendingGoalBuilder.Create(_fixture, auth.UserId)
             .WithDescription("My goal")
-            .WithPeriod(Today.AddDays(1),Today.AddDays(31))
+            .WithPeriod(Today.AddDays(1), Today.AddDays(31))
             .BuildAsync();
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/v1/SpendingGoals/{goalId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<SpendingGoalDto>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<SpendingGoalDto>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Equal(goalId, body.Id);
         Assert.Equal(SpendingGoalStatus.Pending, body.Status);
@@ -365,7 +365,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/v1/SpendingGoals/{Guid.NewGuid()}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -373,7 +373,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
     [Fact]
     public async Task GetById_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.GetAsync($"/api/v1/SpendingGoals/{Guid.NewGuid()}");
+        var response = await _client.GetAsync($"/api/v1/SpendingGoals/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
@@ -393,10 +393,10 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/SpendingGoals/Pending");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<GetSpendingGoalsByStatusDto>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<List<GetSpendingGoalsByStatusDto>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Single(body);
         Assert.Equal(pendingGoalId, body[0].Id);
@@ -406,7 +406,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
     [Fact]
     public async Task GetByStatus_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.GetAsync("/api/v1/SpendingGoals/Pending");
+        var response = await _client.GetAsync("/api/v1/SpendingGoals/Pending", TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
@@ -420,7 +420,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/SpendingGoals/Pending?PageSize=-1");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -436,7 +436,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/SpendingGoals/{goalId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -462,7 +462,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/SpendingGoals/{goalId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", other.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -476,7 +476,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/SpendingGoals/{Guid.NewGuid()}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
@@ -484,7 +484,7 @@ public class SpendingGoalsControllerTests : IClassFixture<IntegrationTestFixture
     [Fact]
     public async Task Delete_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.DeleteAsync($"/api/v1/SpendingGoals/{Guid.NewGuid()}");
+        var response = await _client.DeleteAsync($"/api/v1/SpendingGoals/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 }

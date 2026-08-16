@@ -58,7 +58,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
         public async Task Execute_WhenNoFilterDefaultSort_ShouldOrderByLevelDescThenCreatedAtDesc()
         {
             var result = await _sut.Execute(_userId,
-                new SearchUserCategoryPreferencesQueryParameters(null), CancellationToken.None);
+                new SearchUserCategoryPreferencesQueryParameters(null), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(4, result.Data!.Count);
@@ -77,7 +77,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
         public async Task Execute_WhenNoFilterCreatedAtAsc_ShouldOrderByLevelDescThenCreatedAtAsc()
         {
             var result = await _sut.Execute(_userId,
-                new SearchUserCategoryPreferencesQueryParameters(null, SortOrder: "ASC"), CancellationToken.None);
+                new SearchUserCategoryPreferencesQueryParameters(null, SortOrder: "ASC"), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(4, result.Data!.Count);
@@ -99,7 +99,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
                 new SearchUserCategoryPreferencesQueryParameters(
                     CategoryPreferenceLevel.Important,
                     SortOrder: "ASC"),
-                CancellationToken.None);
+                TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
         }
@@ -113,7 +113,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UserCategoryPreferencesUseCas
                     PageNumber = 1,
                     PageSize = 2
                 },
-                CancellationToken.None);
+                TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(2, result.Data!.Count);

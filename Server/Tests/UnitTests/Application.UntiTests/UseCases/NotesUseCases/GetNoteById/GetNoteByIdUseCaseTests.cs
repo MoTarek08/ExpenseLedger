@@ -26,7 +26,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotesUseCases.GetNoteById
             A.CallTo(() => _notesRepository.FindNoteDtoByIdAsync(NoteId, UserId, A<CancellationToken>._))
                 .Returns((NoteDto?)null);
 
-            var result = await _sut.Execute(UserId, NoteId, default);
+            var result = await _sut.Execute(UserId, NoteId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(NotesErrorCodes.NOTE_NOT_FOUND, result.Error!.Code);
@@ -40,7 +40,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotesUseCases.GetNoteById
             A.CallTo(() => _notesRepository.FindNoteDtoByIdAsync(NoteId, UserId, A<CancellationToken>._))
                 .Returns(noteDto);
 
-            var result = await _sut.Execute(UserId, NoteId, default);
+            var result = await _sut.Execute(UserId, NoteId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(noteDto, result.Data);

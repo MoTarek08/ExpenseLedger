@@ -44,7 +44,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotesUseCases.UpdateNote
             A.CallTo(() => _notesRepository.FindIncludingExpenseAsync(NoteId, A<CancellationToken>._))
                 .Returns((Note?)null);
 
-            var result = await _sut.Execute(UserId, NoteId, new UpdateNoteRequestModel("Updated"), default);
+            var result = await _sut.Execute(UserId, NoteId, new UpdateNoteRequestModel("Updated"), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(NotesErrorCodes.NOTE_NOT_FOUND, result.Error!.Code);
@@ -58,7 +58,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotesUseCases.UpdateNote
             A.CallTo(() => _notesRepository.FindIncludingExpenseAsync(NoteId, A<CancellationToken>._))
                 .Returns(note);
 
-            var result = await _sut.Execute(UserId, NoteId, new UpdateNoteRequestModel("Updated"), default);
+            var result = await _sut.Execute(UserId, NoteId, new UpdateNoteRequestModel("Updated"), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(NotesErrorCodes.NOTE_NOT_FOUND, result.Error!.Code);
@@ -72,7 +72,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotesUseCases.UpdateNote
             A.CallTo(() => _notesRepository.FindIncludingExpenseAsync(NoteId, A<CancellationToken>._))
                 .Returns(note);
 
-            var result = await _sut.Execute(UserId, NoteId, new UpdateNoteRequestModel("Updated content"), default);
+            var result = await _sut.Execute(UserId, NoteId, new UpdateNoteRequestModel("Updated content"), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal("Updated content", note.Content);

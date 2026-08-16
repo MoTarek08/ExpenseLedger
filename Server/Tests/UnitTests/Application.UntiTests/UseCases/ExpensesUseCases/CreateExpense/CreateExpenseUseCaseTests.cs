@@ -60,7 +60,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.CreateExpens
                 .Returns(Result<Expense>.Failure(new Error(ExpensesErrorCodes.EXPENSE_CATEGORIES_DO_NOT_BELONG_TO_EACH_OTHER)));
 
             var request = new CreateExpenseRequestModel(CategoryId, "Test", 100, new DateOnly(2026, 7, 22), SubCategoryId);
-            var result = await _sut.Execute(UserId, request, CancellationToken.None);
+            var result = await _sut.Execute(UserId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.EXPENSE_CATEGORIES_DO_NOT_BELONG_TO_EACH_OTHER, result.Error!.Code);
@@ -75,7 +75,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.CreateExpens
                 .Returns(Result<Expense>.Success(Expense.CreateManualExpense(
                     UserId, CategoryId, "Test", 100, new DateOnly(2026, 7, 22), DateTimeOffset.UtcNow)));
 
-            var result = await _sut.Execute(UserId, request, CancellationToken.None);
+            var result = await _sut.Execute(UserId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotEqual(Guid.Empty, result.Data!.ExpenseId);
@@ -93,7 +93,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.CreateExpens
                 .Returns(Result<Expense>.Success(Expense.CreateManualExpense(
                     UserId, CategoryId, "Test", 100, new DateOnly(2026, 7, 22), DateTimeOffset.UtcNow, SubCategoryId)));
 
-            var result = await _sut.Execute(UserId, request, CancellationToken.None);
+            var result = await _sut.Execute(UserId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _expensesRepository.Add(A<Expense>._)).MustHaveHappenedOnceExactly();

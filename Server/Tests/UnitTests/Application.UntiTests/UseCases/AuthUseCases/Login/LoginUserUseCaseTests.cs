@@ -62,7 +62,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.Login
             A.CallTo(() => _usersRepository.FindByEmailAsync(_request.Email, A<CancellationToken>._))
                 .Returns((User?)null);
 
-            var result = await _sut.Execute(_request, default);
+            var result = await _sut.Execute(_request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(AuthErrorCodes.AUTH_INVALID_CREDENTIALS, result.Error!.Code);
@@ -90,7 +90,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.Login
             A.CallTo(() => _hashingService.AreEqual(_request.Password, user.PasswordHash))
                 .Returns(false);
 
-            var result = await _sut.Execute(_request, default);
+            var result = await _sut.Execute(_request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(AuthErrorCodes.AUTH_INVALID_CREDENTIALS, result.Error!.Code);
@@ -135,7 +135,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.Login
             A.CallTo(() => _refreshTokensRepository.Add(A<RefreshToken>._))
                 .Invokes(call => capturedRefreshToken = call.GetArgument<RefreshToken>(0));
 
-            var result = await _sut.Execute(_request, default);
+            var result = await _sut.Execute(_request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -168,7 +168,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.Login
             A.CallTo(() => _usersRepository.FindByEmailAsync(_request.Email, A<CancellationToken>._))
                 .Returns(user);
 
-            var result = await _sut.Execute(_request, default);
+            var result = await _sut.Execute(_request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(AuthErrorCodes.AUTH_INVALID_CREDENTIALS, result.Error!.Code);

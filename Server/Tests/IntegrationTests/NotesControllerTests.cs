@@ -25,8 +25,8 @@ public class NotesControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
         _client = _fixture.Factory.CreateClient();
     }
 
-    public async Task InitializeAsync() => await _fixture.ResetAsync();
-    public Task DisposeAsync() => Task.CompletedTask;
+    public async ValueTask InitializeAsync() => await _fixture.ResetAsync();
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     [Fact]
     public async Task GetById_Success_ShouldReturnNote()
@@ -39,10 +39,10 @@ public class NotesControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/v1/notes/{noteId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<NoteDto>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<NoteDto>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.Equal(noteId, body.Id);
         Assert.Equal(expenseId, body.ExpenseId);
@@ -64,7 +64,7 @@ public class NotesControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/v1/notes/{noteId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authB.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -84,10 +84,10 @@ public class NotesControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<CreatedResourceId<Guid>>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<CreatedResourceId<Guid>>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.NotEqual(Guid.Empty, body.Id);
 
@@ -114,7 +114,7 @@ public class NotesControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -133,7 +133,7 @@ public class NotesControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
             Content = JsonHelper.Serialize(requestModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -154,7 +154,7 @@ public class NotesControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
             Content = JsonHelper.Serialize(updateModel)
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -178,7 +178,7 @@ public class NotesControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/notes/{noteId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -205,7 +205,7 @@ public class NotesControllerTests : IClassFixture<IntegrationTestFixture>, IAsyn
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/notes/{noteId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authB.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 

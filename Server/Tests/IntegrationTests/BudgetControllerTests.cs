@@ -18,8 +18,8 @@ public class BudgetControllerTests : IClassFixture<IntegrationTestFixture>, IAsy
         _client = _fixture.Factory.CreateClient();
     }
 
-    public async Task InitializeAsync() => await _fixture.ResetAsync();
-    public Task DisposeAsync() => Task.CompletedTask;
+    public async ValueTask InitializeAsync() => await _fixture.ResetAsync();
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     [Fact]
     public async Task GetRemaining_Success_ShouldReturnBudget()
@@ -38,10 +38,10 @@ public class BudgetControllerTests : IClassFixture<IntegrationTestFixture>, IAsy
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/budget/remaining");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<GetRemainingBudgetResponse>(JsonHelper.Options);
+        var body = await response.Content.ReadFromJsonAsync<GetRemainingBudgetResponse>(JsonHelper.Options, TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.True(body.Budget > 0);
         Assert.True(body.Budget <= 5000m);
@@ -50,7 +50,7 @@ public class BudgetControllerTests : IClassFixture<IntegrationTestFixture>, IAsy
     [Fact]
     public async Task GetRemaining_Unauthenticated_ShouldReturn401()
     {
-        var response = await _client.GetAsync("/api/v1/budget/remaining");
+        var response = await _client.GetAsync("/api/v1/budget/remaining", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -64,7 +64,7 @@ public class BudgetControllerTests : IClassFixture<IntegrationTestFixture>, IAsy
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/budget/remaining");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var response = await _client.SendAsync(request);
+        var response = await _client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }

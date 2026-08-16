@@ -30,7 +30,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersFinancialProfilesUseCase
             A.CallTo(() => _repository.GetFinancialProfileByUserIdAsync(_userId, A<CancellationToken>._))
                 .Returns(profile);
 
-            var result = await _sut.Execute(_userId, default);
+            var result = await _sut.Execute(_userId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -46,7 +46,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersFinancialProfilesUseCase
             A.CallTo(() => _repository.GetFinancialProfileByUserIdAsync(_userId, A<CancellationToken>._))
                 .Returns((UserFinancialProfile?)null);
 
-            var result = await _sut.Execute(_userId, default);
+            var result = await _sut.Execute(_userId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(UsersErrorCodes.FINANCIAL_PROFILE_NOT_FOUND, result.Error!.Code);

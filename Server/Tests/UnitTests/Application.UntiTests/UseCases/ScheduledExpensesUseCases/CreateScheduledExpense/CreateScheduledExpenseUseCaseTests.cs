@@ -48,7 +48,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Cre
             A.CallTo(() => _categoriesRepository.SubBelongsToMainAsync(CategoryId, SubCategoryId, A<CancellationToken>._))
                 .Returns(false);
 
-            var result = await _sut.Execute(UserId, request, default);
+            var result = await _sut.Execute(UserId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.EXPENSE_CATEGORIES_DO_NOT_BELONG_TO_EACH_OTHER, result.Error!.Code);
@@ -67,7 +67,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Cre
             A.CallTo(() => _scheduledExpensesRepository.Add(A<ScheduledExpense>._))
                 .Invokes((ScheduledExpense entry) => capturedEntry = entry);
 
-            var result = await _sut.Execute(UserId, request, default);
+            var result = await _sut.Execute(UserId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotEqual(Guid.Empty, result.Data);
@@ -85,7 +85,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Cre
             var request = new CreateScheduledExpenseRequestModel("Test", -100m, CategoryId, null, CadenceInterval.Monthly, new DateOnly(2026, 8, 1));
 
             await Assert.ThrowsAsync<Domain.ExceptionsNamespace.DomainException>(() =>
-                _sut.Execute(UserId, request, default));
+                _sut.Execute(UserId, request, TestContext.Current.CancellationToken));
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ScheduledExpensesUseCases.Cre
 
             A.CallTo(() => _dateProvider.Now).Returns(now);
 
-            var result = await _sut.Execute(UserId, request, default);
+            var result = await _sut.Execute(UserId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _categoriesRepository.SubBelongsToMainAsync(A<Guid>._, A<Guid>._, A<CancellationToken>._))

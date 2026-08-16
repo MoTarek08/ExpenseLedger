@@ -38,7 +38,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersFinancialProfilesUseCase
             A.CallTo(() => _repository.GetFinancialProfileByUserIdAsync(_userId, A<CancellationToken>._))
                 .Returns((UserFinancialProfile?)null);
 
-            var result = await _sut.Execute(_userId, new CreateUserFinancialProfileRequest(5000m, 1), default);
+            var result = await _sut.Execute(_userId, new CreateUserFinancialProfileRequest(5000m, 1), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotEqual(Guid.Empty, result.Data);
@@ -55,7 +55,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersFinancialProfilesUseCase
             A.CallTo(() => _repository.GetFinancialProfileByUserIdAsync(_userId, A<CancellationToken>._))
                 .Returns(existingProfile);
 
-            var result = await _sut.Execute(_userId, new CreateUserFinancialProfileRequest(5000m, 1), default);
+            var result = await _sut.Execute(_userId, new CreateUserFinancialProfileRequest(5000m, 1), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(UsersErrorCodes.FINANCIAL_PROFILE_ALREADY_EXISTS, result.Error!.Code);
@@ -74,7 +74,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersFinancialProfilesUseCase
             var result = await _sut.Execute(
                 _userId,
                 new CreateUserFinancialProfileRequest(BusinessConstants.MinMonthlyNetIncome, 15),
-                default);
+                TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _unitOfWork.SaveChangesAsync(A<CancellationToken>._))

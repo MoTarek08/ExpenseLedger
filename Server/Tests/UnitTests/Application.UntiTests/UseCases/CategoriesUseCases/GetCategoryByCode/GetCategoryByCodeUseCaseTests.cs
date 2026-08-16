@@ -29,7 +29,7 @@ namespace UnitTests.Application.UntiTests.UseCases.CategoriesUseCases.GetCategor
             A.CallTo(() => _categoriesRepository.GetCategoryDetailsByCodeAsync("FOOD", A<CancellationToken>._))
                 .Returns(category);
 
-            var result = await _sut.Execute("FOOD", default);
+            var result = await _sut.Execute("FOOD", TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -42,7 +42,7 @@ namespace UnitTests.Application.UntiTests.UseCases.CategoriesUseCases.GetCategor
             A.CallTo(() => _categoriesRepository.GetCategoryDetailsByCodeAsync("INVALID", A<CancellationToken>._))
                 .Returns((CategoryDetails?)null);
 
-            var result = await _sut.Execute("INVALID", default);
+            var result = await _sut.Execute("INVALID", TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(CategoriesErrorCodes.CATEGORY_NOT_FOUND, result.Error!.Code);

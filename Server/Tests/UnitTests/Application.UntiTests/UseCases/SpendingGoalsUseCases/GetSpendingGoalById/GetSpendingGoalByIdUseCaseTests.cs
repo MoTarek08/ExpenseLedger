@@ -43,7 +43,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.GetSpen
             A.CallTo(() => _repository.GetGoalWithSpentAsync(_goalId, _userId, A<CancellationToken>._))
                 .Returns(Task.FromResult<SpendingGoalWithSpent?>(null));
 
-            var result = await _sut.Execute(_userId, _goalId, CancellationToken.None);
+            var result = await _sut.Execute(_userId, _goalId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(SpendingGoalsErrorCodes.SPENDING_GOAL_NOT_FOUND, result.Error!.Code);
@@ -60,7 +60,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.GetSpen
             A.CallTo(() => _repository.GetGoalWithSpentAsync(_goalId, _userId, A<CancellationToken>._))
                 .Returns(Task.FromResult<SpendingGoalWithSpent?>(new SpendingGoalWithSpent(goal, 0m)));
 
-            var result = await _sut.Execute(_userId, _goalId, CancellationToken.None);
+            var result = await _sut.Execute(_userId, _goalId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(SpendingGoalStatus.Pending, result.Data!.Status);
@@ -77,7 +77,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.GetSpen
             A.CallTo(() => _repository.GetGoalWithSpentAsync(_goalId, _userId, A<CancellationToken>._))
                 .Returns(Task.FromResult<SpendingGoalWithSpent?>(new SpendingGoalWithSpent(goal, 200m)));
 
-            var result = await _sut.Execute(_userId, _goalId, CancellationToken.None);
+            var result = await _sut.Execute(_userId, _goalId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(SpendingGoalStatus.InProgress, result.Data!.Status);
@@ -94,7 +94,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.GetSpen
             A.CallTo(() => _repository.GetGoalWithSpentAsync(_goalId, _userId, A<CancellationToken>._))
                 .Returns(Task.FromResult<SpendingGoalWithSpent?>(new SpendingGoalWithSpent(goal, 300m)));
 
-            var result = await _sut.Execute(_userId, _goalId, CancellationToken.None);
+            var result = await _sut.Execute(_userId, _goalId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(SpendingGoalStatus.Succeeded, result.Data!.Status);
@@ -111,7 +111,7 @@ namespace UnitTests.Application.UntiTests.UseCases.SpendingGoalsUseCases.GetSpen
             A.CallTo(() => _repository.GetGoalWithSpentAsync(_goalId, _userId, A<CancellationToken>._))
                 .Returns(Task.FromResult<SpendingGoalWithSpent?>(new SpendingGoalWithSpent(goal, 600m)));
 
-            var result = await _sut.Execute(_userId, _goalId, CancellationToken.None);
+            var result = await _sut.Execute(_userId, _goalId, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(SpendingGoalStatus.Failed, result.Data!.Status);

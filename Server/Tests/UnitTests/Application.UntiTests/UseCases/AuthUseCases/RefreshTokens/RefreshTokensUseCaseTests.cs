@@ -53,7 +53,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.RefreshTokens
             A.CallTo(() => _tokensService.ValidateAccessTokenAsync(AccessToken))
                 .Returns(new TokenValidationResult { IsValid = false });
 
-            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, default);
+            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(AuthErrorCodes.AUTH_INVALID_ACCESS_TOKEN, result.Error!.Code);
@@ -76,7 +76,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.RefreshTokens
             A.CallTo(() => _refreshTokensRepository.GetByTokenAsync(RefreshTokenFromCookie, A<CancellationToken>._))
                 .Returns((RefreshToken?)null);
 
-            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, default);
+            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(AuthErrorCodes.AUTH_REFRESH_TOKEN_DOES_NOT_EXIST, result.Error!.Code);
@@ -105,7 +105,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.RefreshTokens
             A.CallTo(() => _dateProvider.Now)
                 .Returns(now);
 
-            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, default);
+            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(AuthErrorCodes.AUTH_REFRESH_TOKEN_EXPIRED, result.Error!.Code);
@@ -137,7 +137,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.RefreshTokens
             A.CallTo(() => _dateProvider.Now)
                 .Returns(now);
 
-            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, default);
+            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(AuthErrorCodes.AUTH_REVOKED_REFRESH_TOKEN, result.Error!.Code);
@@ -167,7 +167,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.RefreshTokens
             A.CallTo(() => _dateProvider.Now)
                 .Returns(now);
 
-            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, default);
+            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(AuthErrorCodes.AUTH_TOKENS_PAYLOAD_MISMATCH, result.Error!.Code);
@@ -200,7 +200,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.RefreshTokens
             A.CallTo(() => _dateProvider.Now)
                 .Returns(now);
 
-            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, default);
+            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(AuthErrorCodes.AUTH_INVALID_ACCESS_TOKEN, result.Error!.Code);
@@ -248,7 +248,7 @@ namespace UnitTests.Application.UntiTests.UseCases.AuthUseCases.RefreshTokens
             A.CallTo(() => _refreshTokensRepository.Add(A<RefreshToken>._))
                 .Invokes(call => addedRefreshToken = call.GetArgument<RefreshToken>(0));
 
-            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, default);
+            var result = await _sut.Execute(AccessToken, RefreshTokenFromCookie, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);

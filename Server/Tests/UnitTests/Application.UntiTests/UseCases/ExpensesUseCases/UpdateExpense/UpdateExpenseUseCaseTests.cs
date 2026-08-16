@@ -79,7 +79,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.UpdateExpens
                 .Returns((Expense?)null);
 
             var request = new UpdateExpenseRequestModel("New title", null, null, null, null);
-            var result = await _sut.Execute(UserId, ExpenseId, request, CancellationToken.None);
+            var result = await _sut.Execute(UserId, ExpenseId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.EXPENSE_NOT_FOUND, result.Error!.Code);
@@ -100,7 +100,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.UpdateExpens
                 .Returns(expense);
 
             var request = new UpdateExpenseRequestModel("New title", null, null, null, null);
-            var result = await _sut.Execute(UserId, ExpenseId, request, CancellationToken.None);
+            var result = await _sut.Execute(UserId, ExpenseId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.EXPENSE_NOT_FOUND, result.Error!.Code);
@@ -122,7 +122,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.UpdateExpens
                 .Returns(new DateTimeOffset(2026, 7, 22, 10, 0, 0, TimeSpan.Zero));
 
             var request = new UpdateExpenseRequestModel(null, null, null, null, newSpentOn);
-            var result = await _sut.Execute(UserId, ExpenseId, request, CancellationToken.None);
+            var result = await _sut.Execute(UserId, ExpenseId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(newSpentOn, expense.SpentOn);
@@ -140,7 +140,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.UpdateExpens
                 .Returns(false);
 
             var request = new UpdateExpenseRequestModel(null, null, newCategoryId, SubCategoryId, null);
-            var result = await _sut.Execute(UserId, ExpenseId, request, CancellationToken.None);
+            var result = await _sut.Execute(UserId, ExpenseId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsFailure);
             Assert.Equal(ExpensesErrorCodes.EXPENSE_CATEGORIES_DO_NOT_BELONG_TO_EACH_OTHER, result.Error!.Code);

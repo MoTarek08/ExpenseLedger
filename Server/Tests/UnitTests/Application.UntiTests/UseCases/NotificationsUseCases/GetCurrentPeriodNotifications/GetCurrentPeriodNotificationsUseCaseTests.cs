@@ -38,7 +38,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.GetCurr
             A.CallTo(() => _usersRepository.GetFinancialProfileByUserIdAsync(UserId, A<CancellationToken>._))
                 .Returns((UserFinancialProfile?)null);
 
-            var result = await _sut.Execute(UserId, pagination, default);
+            var result = await _sut.Execute(UserId, pagination, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -67,7 +67,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.GetCurr
             A.CallTo(() => _notificationsRepository.ToListAsync(A<IQueryable<Notification>>._, A<CancellationToken>._))
                 .Returns(notifications);
 
-            var result = await _sut.Execute(UserId, pagination, default);
+            var result = await _sut.Execute(UserId, pagination, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -94,7 +94,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.GetCurr
                 .ReturnsLazily((IQueryable<Notification> query, CancellationToken _) =>
                     Task.FromResult(query.Skip(10).Take(10).ToList()));
 
-            var result = await _sut.Execute(UserId, pagination, default);
+            var result = await _sut.Execute(UserId, pagination, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _notificationsRepository.ToListAsync(A<IQueryable<Notification>>._, A<CancellationToken>._))

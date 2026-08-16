@@ -45,7 +45,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.GetExpensesB
                     Task.FromResult(ToDtos(q)));
 
             var request = new GetExpensesByDayRequestModel(Day);
-            var result = await _sut.Execute(UserId, request, CancellationToken.None);
+            var result = await _sut.Execute(UserId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -62,7 +62,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.GetExpensesB
                     Task.FromResult(ToDtos(q)));
 
             var request = new GetExpensesByDayRequestModel(Day);
-            var result = await _sut.Execute(UserId, request, CancellationToken.None);
+            var result = await _sut.Execute(UserId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
@@ -92,7 +92,7 @@ namespace UnitTests.Application.UntiTests.UseCases.ExpensesUseCases.GetExpensesB
                 PageSize = 10,
                 PageNumber = 1
             };
-            var result = await _sut.Execute(UserId, request, CancellationToken.None);
+            var result = await _sut.Execute(UserId, request, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);

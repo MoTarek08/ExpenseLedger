@@ -34,7 +34,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersFinancialProfilesUseCase
             A.CallTo(() => _repository.GetFinancialProfileByUserIdAsync(_userId, A<CancellationToken>._))
                 .Returns(_profile);
 
-            var result = await _sut.Execute(_userId, new UpdateFinancialProfileRequestModel(6000m, 15), default);
+            var result = await _sut.Execute(_userId, new UpdateFinancialProfileRequestModel(6000m, 15), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(6000m, _profile.MonthlyNetIncome);
@@ -52,7 +52,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersFinancialProfilesUseCase
             var result = await _sut.Execute(
                 _userId,
                 new UpdateFinancialProfileRequestModel(BusinessConstants.MinMonthlyNetIncome, null),
-                default);
+                TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(BusinessConstants.MinMonthlyNetIncome, _profile.MonthlyNetIncome);
@@ -69,7 +69,7 @@ namespace UnitTests.Application.UntiTests.UseCases.UsersFinancialProfilesUseCase
             var originalIncome = _profile.MonthlyNetIncome;
             var originalResetDay = _profile.ResetDay;
 
-            var result = await _sut.Execute(_userId, new UpdateFinancialProfileRequestModel(originalIncome, originalResetDay), default);
+            var result = await _sut.Execute(_userId, new UpdateFinancialProfileRequestModel(originalIncome, originalResetDay), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _unitOfWork.SaveChangesAsync(A<CancellationToken>._))

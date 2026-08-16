@@ -1,22 +1,15 @@
 ﻿using Application.Interfaces.BackgroundJobs;
-using Domain.Entities.DomainEnums;
 using FakeItEasy;
-using Infrastructure.Database.DatabaseSettings;
-using Infrastructure.ObjectStorage;
 using Infrastructure.ObjectStorage.Clients;
-using Infrastructure.Scheduling;
 using IntegrationTests.BackgroundJobs;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
-using Minio;
 
 
 namespace IntegrationTests.CustomWebApplicationFactoryNamespace
-
 {
     public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
@@ -28,66 +21,44 @@ namespace IntegrationTests.CustomWebApplicationFactoryNamespace
         {
             _fixture = fixture;
         }
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureTestServices(services =>
+            // UseSetting flows those configuration values early enough so that the builder can handle the early Program.cs reads successfully;
+            builder.UseSetting("DbSettings:ConnectionString", _fixture.Db.GetConnectionString());
+            builder.UseSetting("HangfireDbSettings:ConnectionString", _fixture.HangfireDb.GetConnectionString());
+            builder.UseSetting("ObjectStorageSettings:Endpoint", $"{_fixture.Minio.Hostname}:{_fixture.Minio.GetMappedPublicPort(9000)}");
+            builder.UseSetting("ObjectStorageSettings:AccessKey", _fixture.Minio.GetAccessKey());
+            builder.UseSetting("ObjectStorageSettings:SecretKey", _fixture.Minio.GetSecretKey());
+            builder.UseSetting("ObjectStorageSettings:BucketName", "test-bucket");
+            builder.UseSetting("AccessTokenSettings:SigningKey", "wwx7lyNbTyzTNI4ud50IL7V3fhBtnOCdMZuhsDXHREp");
+
+            builder.ConfigureTestServices
+            (services =>
             {
-                services.RemoveAll<DbSettings>();
-                services.AddSingleton(new DbSettings
-                {
-                    ConnectionString =
-                        _fixture.Db.GetConnectionString()
-                });
-
-                services.RemoveAll<BackgroundJobsClientDbSettings>();
-                services.AddSingleton(
-                    new BackgroundJobsClientDbSettings(
-                        _fixture.HangfireDb.GetConnectionString()));
-
-                var endpoint = $"{_fixture.Minio.Hostname}:{_fixture.Minio.GetMappedPublicPort(9000)}";
-
-                services.RemoveAll<ObjectStorageSettings>();
-                services.AddSingleton(
-                    new ObjectStorageSettings(
-                        endpoint,
-                        StorageProvider.MinIO,
-                        _fixture.Minio.GetAccessKey(),
-                        _fixture.Minio.GetSecretKey(),
-                        "test-bucket",
-                        15,
-                        "us-east-1",
-                        true));
-
-                var minioClient = new MinioClient()
-                    .WithEndpoint(endpoint)
-                    .WithCredentials(
-                        _fixture.Minio.GetAccessKey(),
-                        _fixture.Minio.GetSecretKey())
-                    .WithSSL(false)
-                    .Build();
-
-                services.RemoveAll<IMinioClient>();
-                services.AddSingleton(minioClient);
-
+                // This was already added when configuring the background job client 
                 services.RemoveAll<IBackgroundJobsService>();
                 services.AddSingleton<IBackgroundJobsService, FakeBackgroundJobsService>();
 
+
                 services.RemoveAll<IObjectStorageClient>();
+                services.AddScoped<MinioApplicationClient>();
 
-                var sp = services.BuildServiceProvider();
-
-                var realClient = new MinioApplicationClient(
-                    sp.GetRequiredService<IMinioClient>(),
-                    sp.GetRequiredService<ILogger<MinioApplicationClient>>());
-
-                FakeObjectStorageClient = A.Fake<IObjectStorageClient>(options =>
+                // FakeItEasy stubs should be singelton
+                services.AddSingleton<IObjectStorageClient>(sp =>
                 {
-                    options.Wrapping(realClient);
+                    using var scope = sp.CreateScope();
+                    var concreteClient = scope.ServiceProvider.GetRequiredService<MinioApplicationClient>();
+                    FakeObjectStorageClient = A.Fake<IObjectStorageClient>(o =>
+                    {
+                        o.Wrapping(concreteClient);
+                    });
+                    return FakeObjectStorageClient;
                 });
 
-
-                services.AddSingleton(FakeObjectStorageClient);
-            });
+            }
+             );
+            builder.UseEnvironment("Development");
         }
 
         public IServiceScope CreateScope()

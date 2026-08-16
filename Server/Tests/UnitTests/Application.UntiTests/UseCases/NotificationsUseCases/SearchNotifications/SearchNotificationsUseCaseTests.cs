@@ -47,7 +47,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.SearchN
                     return paginated.Select(n => CreateDto(n.Type, n.ReadAt)).ToList();
                 });
 
-            var result = await _sut.Execute(UserId, queryParams, default);
+            var result = await _sut.Execute(UserId, queryParams, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(queryParams.PageSize, result.Data!.Count);
@@ -72,7 +72,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.SearchN
                     return paginated.Select(n => CreateDto(n.Type, n.ReadAt)).ToList();
                 });
 
-            var result = await _sut.Execute(UserId, queryParams, default);
+            var result = await _sut.Execute(UserId, queryParams, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(5, result.Data!.Count);
@@ -92,7 +92,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.SearchN
             A.CallTo(() => _notificationsRepository.GetNotificationDtoAsync(A<IQueryable<Notification>>._, A<CancellationToken>._))
                 .Returns(dtos);
 
-            var result = await _sut.Execute(UserId, queryParams, default);
+            var result = await _sut.Execute(UserId, queryParams, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Single(result.Data!);
@@ -112,7 +112,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.SearchN
             A.CallTo(() => _notificationsRepository.GetNotificationDtoAsync(A<IQueryable<Notification>>._, A<CancellationToken>._))
                 .Returns(dtos);
 
-            var result = await _sut.Execute(UserId, queryParams, default);
+            var result = await _sut.Execute(UserId, queryParams, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Single(result.Data!);
@@ -128,7 +128,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.SearchN
             A.CallTo(() => _notificationsRepository.GetNotificationDtoAsync(A<IQueryable<Notification>>._, A<CancellationToken>._))
                 .Returns(new List<NotificationDto>());
 
-            var result = await _sut.Execute(UserId, queryParams, default);
+            var result = await _sut.Execute(UserId, queryParams, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             Assert.Empty(result.Data!);
@@ -144,7 +144,7 @@ namespace UnitTests.Application.UntiTests.UseCases.NotificationsUseCases.SearchN
             A.CallTo(() => _notificationsRepository.GetNotificationDtoAsync(A<IQueryable<Notification>>._, A<CancellationToken>._))
                 .Returns(new List<NotificationDto>());
 
-            var result = await _sut.Execute(UserId, queryParams, default);
+            var result = await _sut.Execute(UserId, queryParams, TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccess);
             A.CallTo(() => _notificationsRepository.GetNotificationDtoAsync(A<IQueryable<Notification>>._, A<CancellationToken>._))
