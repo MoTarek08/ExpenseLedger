@@ -1,0 +1,40 @@
+name: Push To dev CI
+
+on:
+  push:
+    paths-ignore:
+      - "**.[mM][dD]"
+      - "Docs/**"
+      - ".env*"
+      - "**[Dd]ockerfile"
+      - "**.dockerignore"
+      - "docker-compose*"
+      - "Server/Logs/**"
+      - "Server/TestResults/**"
+      - ".github/**"
+    branches:
+      - dev
+
+jobs:
+  RunTests:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Setup runtime
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 10.0.x
+
+    - name: List directory
+      run: ls -la
+
+    - name: Restore dependencies
+      run: dotnet restore Server
+
+    - name: Run unit tests
+      run: dotnet test Server/Tests/UnitTests/UnitTests.csproj --no-restore
+
+    - name: Run integration tests
+      run: dotnet test Server/Tests/IntegrationTests/IntegrationTests.csproj --no-restore
