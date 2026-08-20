@@ -1,0 +1,21 @@
+# name: CI on PR to main branch
+
+# on:
+#   pull_request:
+#     branches:
+#       - main
+
+# jobs:
+#   Run-CI:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Validate source branch
+#         run: |
+#           branch="${{ github.head_ref }}"
+
+#           if [[ "$branch" == "dev" || "$branch" == bug-fix/* ]]; then
+#             echo "Valid source branch: $branch"
+#           else
+#             echo "Invalid source branch: $branch"
+#             exit 1
+#           fi
