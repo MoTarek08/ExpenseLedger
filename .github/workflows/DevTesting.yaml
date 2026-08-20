@@ -59,14 +59,14 @@ jobs:
           done
 
           echo "Application failed to respond"
-          docker compose -f .github/docker-compose.ci.yml logs
+          docker compose -f .github/docker-compose.ci.yaml logs
           exit 1
 
       - name: Shutdown
         if: always()
         run: |
           docker compose \
-            -f .github/docker-compose.ci.yml \
+            -f .github/docker-compose.ci.yaml \
             down -v
 
 
