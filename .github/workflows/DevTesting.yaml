@@ -43,7 +43,7 @@ jobs:
       - name: Start application
         run: |
             IMAGE_TAG="$IMAGE_TAG" docker compose \
-            -f .github/docker-compose.ci.yml \
+            -f .github/docker-compose.ci.yaml \
             up -d
 
       - name: Wait for application
