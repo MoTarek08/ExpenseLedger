@@ -74,7 +74,7 @@ services:
 
 
   api:
-    image: ${image_tag}
+    image: ${IMAGE_TAG}
     container_name: api
     ports:
       - "7000:8080"
