@@ -10,6 +10,7 @@ using Infrastructure.DependencyInjection.Authorization;
 using Infrastructure.DependencyInjection.BackgroundJobsClientConfiguration;
 using Infrastructure.DependencyInjection.Database;
 using Infrastructure.DependencyInjection.DatabaseRelatedImplementations;
+using Infrastructure.DependencyInjection.HealthChecks;
 using Infrastructure.DependencyInjection.Logging;
 using Infrastructure.DependencyInjection.ObjectStorageClientConfiguration;
 using Infrastructure.DependencyInjection.Services;
@@ -47,11 +48,17 @@ builder.Services.AddInfrastructureServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddRateLimitersExtenstion(builder.Configuration);
 
+builder.Services.CustomAddHealthChecks(builder.Configuration);
+
+
 var app = builder.Build();
 
-await ObjectStorageClientLifecycleConfiguration.AddLifecycleConfiguration(app.Services);
+
+app.CustomMapHealthChecks();
 
 app.ConfigureRequestLogging();
+
+await ObjectStorageClientLifecycleConfiguration.AddLifecycleConfiguration(app.Services);
 
 app.TriggerStartupBackgroundJobs();
 

@@ -52,6 +52,7 @@ project.fragment.lock.json
 # Exclude folder for build output
 bin/
 obj/
+TestResults/
 
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
@@ -66,6 +67,7 @@ ScaffoldingReadMe.txt
 appsettings.development.json
 
 # Agents Specifications
+.agents/
 Server/.agents/
 Server/docs/
 Server/opencode.json

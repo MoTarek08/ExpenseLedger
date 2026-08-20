@@ -1,82 +1,22 @@
-# Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]eleases/
-[Rr]eleasesPublic/
-[Oo]utput/
-[Ll]og/
-[Ll]ogs/
+# Ignore everything by default so Docker only receives backend build inputs.
+**
 
+# Docker build inputs.
+!Dockerfile
+!NuGet.config
+!global.json
+!ExpenseLedgerSolution.slnx
+!src/
+!src/**
 
-# User-specific files
-*.user
-*.userosscache
-*.suo
-*.sln.docstates
-
-# MonoDevelop
-*.userprefs
-
-# Auto-generated files by Visual Studio
-*.ncb
-*.suo
-*.sdf
-*.cache
-*.dbmdl
-*.opendb
-*.pdb
-*.psess
-*.vsp
-*.vsps
-*.vssscc
-*.vssscc
-*.vsix
-*.vsixmanifest
-
-# NuGet
-*.nupkg
-*.snupkg
-*.nuspec
-.nuget/
-packages/
-project.lock.json
-project.fragment.lock.json
-*.csproj.user
-
-# Backup files
-*~
-*.bak
-*.tmp
-
-# Folder-specific ignores
-# Exclude folder for build output
-**/bin/
-**/obj/
-
-# ASP.NET Scaffolding
-ScaffoldingReadMe.txt
-
-# VS Code settings
-*.vscode/
-.vscode/
-.vs/
-
-# Environment Variables
-appsettings.development.json
-appsettings.development.example.json
-
-# Agents Specifications
-.agents/
-docs/
-opencode.json
-nul
-host_run.log
-
-# MDs
-*.md
-*.MD
-*.Md
-
-# Docker Files
-Dockerfile
-.dockerignore
+# Keep generated and local-only files out of the context.
+**/[Bb]in/
+**/[Oo]bj/
+**/.vs/
+**/.vscode/
+**/TestResults/
+**/Logs/
+**/.nuget/
+**/*.user
+**/*.suo
+**/*.pdb
