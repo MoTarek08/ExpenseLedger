@@ -1,22 +1,9 @@
-name: Push To dev CI
+name: Setup runtime and run tests 
 
 on:
-  push:
-    paths-ignore:
-      - "**.[mM][dD]"
-      - "Docs/**"
-      - ".env*"
-      - "**[Dd]ockerfile"
-      - "**.dockerignore"
-      - "docker-compose*"
-      - "Server/Logs/**"
-      - "Server/TestResults/**"
-      - ".github/**"
-    branches:
-      - dev
-
+  workflow_call:
 jobs:
-  RunTests:
+  setup-and-test:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
