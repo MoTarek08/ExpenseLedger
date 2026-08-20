@@ -9,11 +9,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     healthcheck:
-      test:
-        [
-        "CMD","sh","-c",
-        "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} && psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c 'SELECT 1;'",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB && psql -U $$POSTGRES_USER -d $$POSTGRES_DB -c 'SELECT 1;'"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -60,11 +56,7 @@ services:
       - POSTGRES_PASSWORD=${HANGFIRE_POSTGRES_PASSWORD}
 
     healthcheck:
-      test:     
-        [
-        "CMD","sh","-c",
-        "pg_isready -U ${HANGFIRE_POSTGRES_USER} && psql -U ${HANGFIRE_POSTGRES_USER} -d ${HANGFIRE_POSTGRES_DB} -c 'SELECT 1;'",
-        ]  
+      test: ["CMD-SHELL", "pg_isready -U $$HANGFIRE_POSTGRES_USER -d $$HANGFIRE_POSTGRES_DB && psql -U $$HANGFIRE_POSTGRES_USER -d $$HANGFIRE_POSTGRES_DB -c 'SELECT 1;'"]
       interval: 10s
       timeout: 5s
       retries: 5
