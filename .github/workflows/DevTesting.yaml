@@ -17,7 +17,7 @@ on:
 jobs:
   tests:
     name: Tests
-    uses: /.github/workflows/ReusableWorkflows/SetupAndRunTests.yaml
+    uses: ./.github/workflows/ReusableWorkflows/SetupAndRunTests.yaml
 
   docker-build-and-smoke-tests:
     name: Docker build and smoke tests
