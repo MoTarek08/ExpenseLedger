@@ -25,6 +25,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_TAG: api:${{ github.sha }}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      HANGFIRE_POSTGRES_DB: ${{ secrets.HANGFIRE_POSTGRES_DB }}
+      HANGFIRE_POSTGRES_USER: ${{ secrets.HANGFIRE_POSTGRES_USER }}
+      HANGFIRE_POSTGRES_PASSWORD: ${{ secrets.HANGFIRE_POSTGRES_PASSWORD }}
+      MINIO_ROOT_USER: ${{ secrets.MINIO_ROOT_USER }}
+      MINIO_ROOT_PASSWORD: ${{ secrets.MINIO_ROOT_PASSWORD }}
+      ACCESS_TOKEN_SIGNING_KEY: ${{ secrets.ACCESS_TOKEN_SIGNING_KEY }}
     permissions:
       contents: read
 
@@ -40,9 +49,12 @@ jobs:
             --tag "$IMAGE_TAG" \
             Server/
 
+      - name: Validate compose config
+        run: docker compose -f .github/docker-compose.ci.yaml config --quiet
+
       - name: Start application
         run: |
-            IMAGE_TAG="$IMAGE_TAG" docker compose \
+            docker compose \
             -f .github/docker-compose.ci.yaml \
             up -d
 
