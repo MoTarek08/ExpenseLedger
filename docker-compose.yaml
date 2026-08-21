@@ -11,8 +11,8 @@ services:
     healthcheck:
       test:
         [
-        "CMD","sh","-c",
-        "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} && psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c 'SELECT 1;'",
+          "CMD-SHELL",
+          "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB && psql -U $$POSTGRES_USER -d $$POSTGRES_DB -c 'SELECT 1;'"
         ]
       interval: 10s
       timeout: 5s
@@ -68,11 +68,11 @@ services:
     ports:
       - "5433:5432"
     healthcheck:
-      test:     
+      test:
         [
-        "CMD","sh","-c",
-        "pg_isready -U ${HANGFIRE_POSTGRES_USER} && psql -U ${HANGFIRE_POSTGRES_USER} -d ${HANGFIRE_POSTGRES_DB} -c 'SELECT 1;'",
-        ]  
+          "CMD-SHELL",
+          "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB && psql -U $$POSTGRES_USER -d $$POSTGRES_DB -c 'SELECT 1;'"
+        ] 
       interval: 10s
       timeout: 5s
       retries: 5

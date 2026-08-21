@@ -9,7 +9,11 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB && psql -U $$POSTGRES_USER -d $$POSTGRES_DB -c 'SELECT 1;'"]
+      test: 
+        [
+        "CMD-SHELL",
+         "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB && psql -U $$POSTGRES_USER -d $$POSTGRES_DB -c 'SELECT 1;'"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -50,19 +54,22 @@ services:
     container_name: hangfire-db
     ports:
       - "5433:5432"
+
     environment:
       - POSTGRES_DB=${HANGFIRE_POSTGRES_DB}
       - POSTGRES_USER=${HANGFIRE_POSTGRES_USER}
       - POSTGRES_PASSWORD=${HANGFIRE_POSTGRES_PASSWORD}
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$HANGFIRE_POSTGRES_USER -d $$HANGFIRE_POSTGRES_DB && psql -U $$HANGFIRE_POSTGRES_USER -d $$HANGFIRE_POSTGRES_DB -c 'SELECT 1;'"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB && psql -U $$POSTGRES_USER -d $$POSTGRES_DB -c 'SELECT 1;'"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 20s
-
-    restart: unless-stopped
 
 
   api:
