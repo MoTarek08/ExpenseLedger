@@ -62,7 +62,7 @@ jobs:
         shell: bash
         run: |
           for i in {1..30}; do
-            if curl --fail --silent http://localhost:7000/; then
+            if curl --fail --silent http://localhost:7000/health; then
               echo "Application responded successfully"
               exit 0
             fi
