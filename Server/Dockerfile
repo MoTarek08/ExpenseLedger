@@ -54,4 +54,9 @@ RUN apt-get update \
     && apt-get install -y curl \
     && rm -rf /var/lib/apt/lists/*
 
+RUN mkdir -p /app/Logs \
+    && chown -R $APP_UID:$APP_UID /app/Logs
+    
+USER $APP_UID
+
 ENTRYPOINT ["dotnet", "Host.dll"]
