@@ -85,6 +85,11 @@ app.RegisterSecurityPoliciesMiddelwares();
 
 app.MapControllers();
 
+app.MapGet("", async ctx =>
+{
+    await ctx.Response.WriteAsync("Welcome");
+});
+
 app.Run();
 
 public partial class Program;
