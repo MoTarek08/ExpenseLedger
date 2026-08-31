@@ -21,7 +21,7 @@ concurrency:
 jobs:
   tests:
     name: Tests
-    uses: ./.github/workflows/SetupAndRunTests.yaml
+    uses: ./.github/workflows/setup-and-test-source.yaml
     permissions:
       contents: read
 

@@ -49,7 +49,7 @@ jobs:
     permissions:
       contents: read
     needs: validate-source-branch
-    uses: ./.github/workflows/SetupAndRunTests.yaml
+    uses: ./.github/workflows/setup-and-test-source.yaml
 
   scan-source-code:
     name: Scan source code for vulnerabilities
