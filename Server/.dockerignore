@@ -9,13 +9,15 @@
 !src/
 !src/**
 
-# Keep generated and local-only files out of the context.
+# Keep secrets out of the build (they will be injected with compose via environment variables)
+src/Host/appsettings.development.json
+
+# Keep generated and local-only files out of the context.\
 **/[Bb]in/
 **/[Oo]bj/
 **/.vs/
 **/.vscode/
 **/TestResults/
-**/Logs/
 **/.nuget/
 **/*.user
 **/*.suo

@@ -1,0 +1,188 @@
+name: CI on PR to branch main
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "**.[mM][dD]"
+      - "Docs/**"
+      - "Server/Logs/**"
+      - "Server/TestResults/**"
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+concurrency:
+  group: ${{ github.workflow }}-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+env:
+  IMAGE_BASE_URL: ghcr.io/motarek08/api
+
+jobs:
+
+  # ---------------------------------------------------------
+  # Only dev and bug-fix/* are allowed to target main.
+  # ---------------------------------------------------------
+  validate-source-branch:
+    name: Validate source branch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Validate
+        shell: bash
+        run: |
+          branch="${{ github.head_ref }}"
+          if [[ "$branch" == "dev" || "$branch" == bug-fix/* ]]; then 
+            echo "Allowed source branch: $branch"
+          else
+            echo "Invalid source branch: $branch"
+            exit 1
+          fi
+
+
+  tests:
+    name: Tests
+    permissions:
+      contents: read
+    needs: validate-source-branch
+    uses: ./.github/workflows/SetupAndRunTests.yaml
+
+  scan-source-code:
+    name: Scan source code for vulnerabilities
+    permissions:
+      contents:read
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Scan source code for vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: "fs"
+          output: source-code-scan-report.json
+          format: json
+          scan-ref: .
+          exit-code: 0
+
+      - name: Upload source code scan report
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-code-scan-report
+          path: source-code-scan-report.json
+          retention-days: 30
+
+      - name: Fail workflow on high or criticial vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: "fs"
+          format: table
+          scan-ref: .
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+          exit-code: 1
+          skip-setup-trivy: true
+
+
+  build-test-scan-push-image:
+    name: Docker buid, smoke test and push image to GHCR
+    needs: tests
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: "${{ env.IMAGE_BASE_URL }}:main-${{github.event.pull_request.head.sha}}"
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      HANGFIRE_POSTGRES_DB: ${{ secrets.HANGFIRE_POSTGRES_DB }}
+      HANGFIRE_POSTGRES_USER: ${{ secrets.HANGFIRE_POSTGRES_USER }}
+      HANGFIRE_POSTGRES_PASSWORD: ${{ secrets.HANGFIRE_POSTGRES_PASSWORD }}
+      MINIO_ROOT_USER: ${{ secrets.MINIO_ROOT_USER }}
+      MINIO_ROOT_PASSWORD: ${{ secrets.MINIO_ROOT_PASSWORD }}
+      ACCESS_TOKEN_SIGNING_KEY: ${{ secrets.ACCESS_TOKEN_SIGNING_KEY }}
+
+    permissions:
+      contents: read
+      packages: write    
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Build image
+        run: |
+          docker build \
+            --file Server/Dockerfile \
+            --tag "$IMAGE_TAG" \
+            Server/
+
+      - name: Validate compose config
+        run: docker compose -f .github/docker-compose.ci.yaml config --quiet
+
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: "$IMAGE_TAG"
+          format: 'table'
+          vuln-type: 'os,library'
+          output: image-scan-report.txt
+
+      - name: Upload image scan report
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-scan-report
+          path: image-scan-report.txt
+          retention-days: 30
+
+      - name: Fail build & workflow on high or criticial vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: "$IMAGE_TAG"
+          format: 'table'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+          exit-code: 1
+
+      - name: Start application
+        run: |
+          docker compose \
+            -f .github/docker-compose.ci.yaml \
+            up -d
+
+      - name: Request health check endpoint
+        shell: bash
+        run: |
+          for i in {1..30}; do
+            if curl --fail --silent http://localhost:7000/health; then
+              echo "Application is healthy"
+              exit 0
+            fi
+
+            sleep 2
+          done
+
+          echo "::error::Application failed to become healthy"
+          docker compose -f docker-compose.ci.yaml logs
+          exit 1
+
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push artifact
+        run: docker push "$IMAGE_TAG"
+
+      - name: Shutdown
+        if: always()
+        run: |
+          docker compose \
+            -f docker-compose.ci.yaml \
+            down -v
