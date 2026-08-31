@@ -17,7 +17,7 @@ The production branch.
 The shared development branch.
 
 - The default branch for active development.
-- All developers push their completed work here.
+- All developers raise PRs here.
 - Contains the ongoing development history before production releases.
 
 ---
@@ -33,6 +33,8 @@ Before starting development:
 - The project builds and runs successfully.
 
 ---
+## 0. Pull dev Branch into your Local
+- Pull the deb branch locally, so you can make sure that you are working on the up-to-date version 
 
 ## 1. Create a Feature Branch
 
@@ -46,38 +48,21 @@ When starting a new feature:
 
 Complete the implementation.
 
-After finishing:
+## 3. Push
 
-- Merge the feature branch back into your local working branch.
-- Prefer a **rebase merge**, especially if the feature contains many commits.
-- Delete the feature branch if it is no longer needed.
+After finishing implementation:
 
----
-
-## 3. Synchronize with `origin/dev` (**Important**)
-
-Before pushing:
-
-- Merge the latest changes from `origin/dev` into your local working branch.
-- Resolve any merge conflicts before continuing.
-
-This prevents pushing work that conflicts with changes made by other developers.
+- **Squash merge** even on local just for consistency and clarity.
+- Push the local feature branch to an indetical upstream branch on remote, which will be created at this point.
 
 ---
 
-## 4. Push
+## 4. Raise PR to dev Branch
 
-After resolving conflicts:
-
-- Push your local branch.
-
-At this point your local branch should contain:
-
-- Your completed feature.
-- All latest changes from `origin/dev`.
-
+- Raise a PR from the remote feature branch to **dev** branch, which will kick off a CI pipeline
 ---
 
-## 5. Complete the Merge
+## 5. Merge manually
 
-Accept the merge request on the remote repository.
+- After status checks has passed, you can merge manually to remote **dev**.
+
