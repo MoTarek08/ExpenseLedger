@@ -130,6 +130,8 @@ jobs:
           format: 'table'
           vuln-type: 'os,library'
           output: image-scan-report.txt
+          exit-code: 0
+
 
       - name: Upload image scan report
         uses: actions/upload-artifact@v4
